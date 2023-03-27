@@ -1,1 +1,6 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Colleague-Feedback-Team-1_colleague-feedback-backend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Colleague-Feedback-Team-1_colleague-feedback-backend)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Colleague-Feedback-Team-1_colleague-feedback-backend&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Colleague-Feedback-Team-1_colleague-feedback-backend)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Colleague-Feedback-Team-1_colleague-feedback-backend&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Colleague-Feedback-Team-1_colleague-feedback-backend)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Colleague-Feedback-Team-1_colleague-feedback-backend&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Colleague-Feedback-Team-1_colleague-feedback-backend)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Colleague-Feedback-Team-1_colleague-feedback-backend&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Colleague-Feedback-Team-1_colleague-feedback-backend)
 ## Colleague Feedback Backend
