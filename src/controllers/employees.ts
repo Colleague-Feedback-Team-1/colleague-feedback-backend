@@ -2,6 +2,7 @@ import { RequestHandler } from 'express'
 import createHttpError from 'http-errors'
 import EmployeeModel from '../data_models/employee'
 import bcrypt from 'bcrypt'
+import { isValidEmail, isValidUsername } from '../utils/validators'
 
 export const getAuthenticatedEmployee: RequestHandler = async (req, res, next) => {
   const authenticatedUserId = req.session.userId
@@ -15,45 +16,54 @@ export const getAuthenticatedEmployee: RequestHandler = async (req, res, next) =
     next(error)
   }
 }
-interface SingUpBody {
+interface SignUpBody {
   username?: string
   email?: string
-  password?: string,
-  status?:string
+  password?: string
+  status?: string
 }
-export const signUp: RequestHandler<unknown, unknown, SingUpBody, unknown> = async (
+export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = async (
   req,
   res,
   next
 ) => {
-  const username = req.body.username
-  const email = req.body.email
-  const passwordRaw = req.body.password
-  const status = req.body.status
+  const { username, email, password: passwordRaw, status } = req.body
 
   try {
     if (!username || !email || !passwordRaw || !status) {
       throw createHttpError(400, 'Parameters missing')
     }
-    const existingUserName = await EmployeeModel.findOne({ username: username }).exec()
+
+    // Validate email and username formats
+    if (!isValidEmail(email)) {
+      throw createHttpError(400, 'Invalid email format')
+    }
+
+    if (!isValidUsername(username)) {
+      throw createHttpError(400, 'Invalid username format')
+    }
+
+    // Check if username and email already exist in the database
+    const existingUserName = await EmployeeModel.findOne({ username: { $eq: username } }).exec()
     if (existingUserName) {
       throw createHttpError(409, 'Username already taken')
     }
-    const existingEmail = await EmployeeModel.findOne({ email: email }).exec()
+
+    const existingEmail = await EmployeeModel.findOne({ email: { $eq: email } }).exec()
     if (existingEmail) {
       throw createHttpError(409, 'Email already taken')
     }
 
-    //Hashing password and creating an entry
+    // Hash password and create a new user
     const passwordHashed = await bcrypt.hash(passwordRaw, 10)
     const newUser = await EmployeeModel.create({
-      username: username,
-      email: email,
+      username,
+      email,
       password: passwordHashed,
-      status:status
+      status,
     })
 
-    //Storing session data
+    // Store session data
     req.session.userId = newUser._id
     res.status(201).json(newUser)
   } catch (error) {
@@ -70,25 +80,35 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
   res,
   next
 ) => {
-  const email = req.body.email
-  const password = req.body.password
+  const { email, password } = req.body
 
   try {
     if (!email || !password) {
       throw createHttpError(400, 'Parameters missing')
     }
-    const user = await EmployeeModel.findOne({ email:email }).select('+password +username').exec()
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      throw createHttpError(400, 'Invalid email format')
+    }
+
+    // Check if user exists in the database
+    const user = await EmployeeModel.findOne({ email: { $eq: email } })
+      .select('+password +username')
+      .exec()
     if (!user) {
       throw createHttpError(401, 'Invalid credentials')
     }
-    const passwordMatch = await bcrypt.compare(password, user.password)
 
+    // Check if password is correct
+    const passwordMatch = await bcrypt.compare(password, user.password)
     if (!passwordMatch) {
       throw createHttpError(401, 'Invalid credentials')
     }
 
+    // Store session data
     req.session.userId = user._id
-    res.status(201).json(user)
+    res.status(200).json(user)
   } catch (error) {
     next(error)
   }
