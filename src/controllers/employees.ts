@@ -29,6 +29,7 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
   next
 ) => {
   const { username, email, password: passwordRaw, status } = req.body
+  //Using a validator to sanitize user input
   const sanitizedUsername = validator.escape(username).trim()
   const sanitizedEmail = validator.escape(email).trim()
   const sanitizedPassword = validator.escape(passwordRaw).trim()
@@ -40,33 +41,35 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
     }
 
     if (!isValidEmail(sanitizedEmail)) {
-      throw createHttpError(400, 'Invalid email format');
+      throw createHttpError(400, 'Invalid email format')
     }
 
     if (!isValidUsername(sanitizedUsername)) {
-      throw createHttpError(400, 'Invalid username format');
+      throw createHttpError(400, 'Invalid username format')
     }
 
     // Check if username and email already exist in the database
-    const existingUserName = await EmployeeModel.findOne({ username: { $eq: sanitizedUsername } }).exec();
+    const existingUserName = await EmployeeModel.findOne({
+      username: { $eq: sanitizedUsername },
+    }).exec()
     if (existingUserName) {
-      throw createHttpError(409, 'Username already taken');
+      throw createHttpError(409, 'Username already taken')
     }
 
-    const existingEmail = await EmployeeModel.findOne({ email: { $eq: sanitizedEmail } }).exec();
+    const existingEmail = await EmployeeModel.findOne({ email: { $eq: sanitizedEmail } }).exec()
     if (existingEmail) {
-      throw createHttpError(409, 'Email already taken');
+      throw createHttpError(409, 'Email already taken')
     }
 
     // Hash password and create a new user
-    const passwordHashed = await bcrypt.hash(sanitizedPassword, 10);
+    const passwordHashed = await bcrypt.hash(sanitizedPassword, 10)
     const newUser = await EmployeeModel.create({
       username: sanitizedUsername,
       email: sanitizedEmail,
       password: passwordHashed,
       status: sanitizedStatus,
-    });
-     
+    })
+
     // Store session data
     req.session.userId = newUser._id
     res.status(201).json(newUser)
@@ -85,6 +88,7 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
   next
 ) => {
   const { email, password } = req.body
+  //Using a validator to sanitize user input
   const sanitizedEmail = validator.escape(email).trim()
   const sanitizedPassword = validator.escape(password).trim()
 
