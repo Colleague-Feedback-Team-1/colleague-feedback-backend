@@ -33,7 +33,7 @@ app.use(
 
 app.use('/api/employees', userRoutes)
 //requests endpoint
-
+app.use("/api/review-requests", toBeReviewedRoutes)
 
 app.use((req, res, next) => {
   next(createHttpError(404, 'Endpoint not found'))
