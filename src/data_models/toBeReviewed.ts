@@ -34,7 +34,7 @@ const ToBeReviewed = new Schema<ToBeReviewedI>(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true, collection:"requests" }
 )
 
 type ToBeReviewed = InferSchemaType<typeof ToBeReviewed>
