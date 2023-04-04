@@ -10,16 +10,21 @@ router.get('/', RequestsController.getAll)
 router.get('/:requestid', RequestsController.getRequestById)
 
 //add a request
-router.post('/add-request', RequestsController.insertRequest)
+router.post('/insert-request', RequestsController.insertRequest)
 
-//update self review field of an employee
+//update either selfReview field / confirmedByHR field or both of an employee document id
 router.patch('/update-status/:requestid', RequestsController.updateSelfReviewStatus)
 
-//delete a single request entry by id
+//delete a single request entry by document id
 router.delete('/:requestid', RequestsController.deleteRequest)
 
-//insert reviewers into a request
-router.patch("/insert-reviewers/:requestid", RequestsController.insertReviewers)
+//insert reviewers into a request (works with a single Reviewer Object it just needs to be inside of an array)
+router.patch('/insert-reviewers/:requestid', RequestsController.insertReviewers)
 
+//updates the feedback submitted status based on request document id and reviewer document id
+router.patch(
+  '/update-status/:requestid/:reviewerid',
+  RequestsController.updateFeedbackSubmittedStatus
+)
 
 export default router

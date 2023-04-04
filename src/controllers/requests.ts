@@ -48,6 +48,7 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
       employeeEmail,
       assignedManagerid,
       assignedManagerName,
+      confirmedByHR,
       selfReview,
       dateRequested,
       reviewers,
@@ -60,6 +61,7 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
       employeeEmail: employeeEmail,
       assignedManagerid: assignedManagerid,
       assignedManagerName: assignedManagerName,
+      confirmedByHR: confirmedByHR,
       selfReview: selfReview,
       dateRequested: dateRequested,
       reviewers,
@@ -90,14 +92,39 @@ export const deleteRequest: RequestHandler = async (req, res, next) => {
 }
 
 //Update self review status
+// export const updateSelfReviewStatus: RequestHandler<
+//   { requestid: string },
+//   unknown,
+//   { selfReview: boolean },
+//   unknown
+// > = async (req, res, next) => {
+//   const requestid = req.params.requestid
+//   const newSelfReview = req.body.selfReview
+
+//   try {
+//     if (!mongoose.isValidObjectId(requestid)) {
+//       throw createHttpError(400, `Request id: ${requestid} is invalid `)
+//     }
+//     const request = await RequestsModel.findById(requestid).exec()
+//     if (!request) {
+//       throw createHttpError(404, `Request with ${requestid} not found`)
+//     }
+//     request.selfReview = newSelfReview
+//     const updatedEmployeeData = await request.save()
+
+//     res.status(200).json(updatedEmployeeData)
+//   } catch (error) {
+//     next(error)
+//   }
+// }
 export const updateSelfReviewStatus: RequestHandler<
   { requestid: string },
   unknown,
-  { selfReview: boolean },
+  { selfReview?: boolean; confirmedByHR?: boolean },
   unknown
 > = async (req, res, next) => {
   const requestid = req.params.requestid
-  const newSelfReview = req.body.selfReview
+  const { selfReview, confirmedByHR } = req.body
 
   try {
     if (!mongoose.isValidObjectId(requestid)) {
@@ -107,7 +134,15 @@ export const updateSelfReviewStatus: RequestHandler<
     if (!request) {
       throw createHttpError(404, `Request with ${requestid} not found`)
     }
-    request.selfReview = newSelfReview
+
+    if (selfReview !== undefined) {
+      request.selfReview = selfReview
+    }
+
+    if (confirmedByHR !== undefined) {
+      request.confirmedByHR = confirmedByHR
+    }
+
     const updatedEmployeeData = await request.save()
 
     res.status(200).json(updatedEmployeeData)
@@ -115,7 +150,6 @@ export const updateSelfReviewStatus: RequestHandler<
     next(error)
   }
 }
-
 //Insert an array of reviweres into a specific request
 export const insertReviewers: RequestHandler<
   { requestid: string },
@@ -147,3 +181,37 @@ export const insertReviewers: RequestHandler<
     next(error)
   }
 }
+
+export const updateFeedbackSubmittedStatus: RequestHandler<
+  { requestid: string; reviewerid: string },
+  unknown,
+  { feedbackSubmitted: boolean },
+  unknown
+> = async (req, res, next) => {
+  const { requestid, reviewerid } = req.params;
+  const { feedbackSubmitted } = req.body;
+
+  try {
+    if (!mongoose.isValidObjectId(requestid)) {
+      throw createHttpError(400, `Request id: ${requestid} is invalid`);
+    }
+    if (!mongoose.isValidObjectId(reviewerid)) {
+      throw createHttpError(400, `Reviewer id: ${reviewerid} is invalid`);
+    }
+    const request = await RequestsModel.findOneAndUpdate(
+      { _id: requestid, 'reviewers._id': reviewerid },
+      { $set: { 'reviewers.$.feedbackSubmitted': feedbackSubmitted } },
+      { new: true }
+    ).exec();
+    if (!request) {
+      throw createHttpError(404, `Request with id ${requestid} was not found`);
+    }
+    res.status(200).json(request);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+

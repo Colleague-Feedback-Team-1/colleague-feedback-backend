@@ -11,15 +11,15 @@ export const getAuthenticatedEmployee: RequestHandler = async (req, res, next) =
     if (!authenticatedUserId) {
       throw createHttpError(401, 'User not authenticated')
     }
-    const user = await EmployeeModel.findById(authenticatedUserId).select('+email +status').exec()
+    const user = await EmployeeModel.findById(authenticatedUserId).select('+employeeEmail +status').exec()
     res.status(200).json(user)
   } catch (error) {
     next(error)
   }
 }
 interface SignUpBody {
-  username: string
-  email: string
+  employeeName: string
+  employeeEmail: string
   password: string
   status: string
 }
@@ -28,10 +28,10 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
   res,
   next
 ) => {
-  const { username, email, password: passwordRaw, status } = req.body
+  const { employeeName, employeeEmail, password: passwordRaw, status } = req.body
   //Using a validator to sanitize user input
-  const sanitizedUsername = validator.escape(username).trim()
-  const sanitizedEmail = validator.escape(email).trim()
+  const sanitizedUsername = validator.escape(employeeName).trim()
+  const sanitizedEmail = validator.escape(employeeEmail).trim()
   const sanitizedPassword = validator.escape(passwordRaw).trim()
   const sanitizedStatus = validator.escape(status).trim()
 
@@ -41,22 +41,22 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
     }
 
     if (!isValidEmail(sanitizedEmail)) {
-      throw createHttpError(400, 'Invalid email format')
+      throw createHttpError(400, 'Invalid employeeEmail format')
     }
 
     if (!isValidUsername(sanitizedUsername)) {
-      throw createHttpError(400, 'Invalid username format')
+      throw createHttpError(400, 'Invalid employeeName format')
     }
 
-    // Check if username and email already exist in the database
+    // Check if employeeName and employeeEmail already exist in the database
     const existingUserName = await EmployeeModel.findOne({
-      username: { $eq: sanitizedUsername },
+      employeeName: { $eq: sanitizedUsername },
     }).exec()
     if (existingUserName) {
       throw createHttpError(409, 'Username already taken')
     }
 
-    const existingEmail = await EmployeeModel.findOne({ email: { $eq: sanitizedEmail } }).exec()
+    const existingEmail = await EmployeeModel.findOne({ employeeEmail: { $eq: sanitizedEmail } }).exec()
     if (existingEmail) {
       throw createHttpError(409, 'Email already taken')
     }
@@ -64,8 +64,8 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
     // Hash password and create a new user
     const passwordHashed = await bcrypt.hash(sanitizedPassword, 10)
     const newUser = await EmployeeModel.create({
-      username: sanitizedUsername,
-      email: sanitizedEmail,
+      employeeName: sanitizedUsername,
+      employeeEmail: sanitizedEmail,
       password: passwordHashed,
       status: sanitizedStatus,
     })
@@ -79,7 +79,7 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
 }
 
 interface LoginBody {
-  email: string
+  employeeEmail: string
   password: string
 }
 export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async (
@@ -87,9 +87,9 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
   res,
   next
 ) => {
-  const { email, password } = req.body
+  const { employeeEmail, password } = req.body
   //Using a validator to sanitize user input
-  const sanitizedEmail = validator.escape(email).trim()
+  const sanitizedEmail = validator.escape(employeeEmail).trim()
   const sanitizedPassword = validator.escape(password).trim()
 
   try {
@@ -97,14 +97,14 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
       throw createHttpError(400, 'Parameters missing')
     }
 
-    // Validate email format
+    // Validate employeeEmail format
     if (!isValidEmail(sanitizedEmail)) {
-      throw createHttpError(400, 'Invalid email format')
+      throw createHttpError(400, 'Invalid employeeEmail format')
     }
 
     // Check if user exists in the database
-    const user = await EmployeeModel.findOne({ email: { $eq: sanitizedEmail } })
-      .select('+password +username')
+    const user = await EmployeeModel.findOne({ employeeEmail: { $eq: sanitizedEmail } })
+      .select('+password +employeeName')
       .exec()
     if (!user) {
       throw createHttpError(401, 'Invalid credentials')

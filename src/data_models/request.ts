@@ -14,6 +14,7 @@ export interface RequestsI {
   employeeEmail: string
   assignedManagerid: string
   assignedManagerName: string
+  confirmedByHR: boolean
   selfReview: boolean
   dateRequested: string
   reviewers: ReviewerI[]
@@ -30,10 +31,11 @@ const Requests = new Schema<RequestsI>(
   {
     employeeid: { type: String, required: true },
     employeeName: { type: String, required: true },
+    employeeEmail: { type: String, required: true },
     assignedManagerid: { type: String, required: true },
     assignedManagerName: { type: String, required: true },
-    employeeEmail: { type: String, required: true },
-    selfReview: { type: Boolean, required: true },
+    confirmedByHR: { type: Boolean, required: true, default: false },
+    selfReview: { type: Boolean, required: true, default: false },
     dateRequested: { type: String, required: true },
     reviewers: { type: [ReviewerSchema] },
   },
