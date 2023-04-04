@@ -89,16 +89,11 @@ export const deleteRequest: RequestHandler = async (req, res, next) => {
   }
 }
 
-interface UpdateIdParams {
-  requestid: string
-}
-interface UpdateData {
-  selfReview: boolean
-}
+//Update self review status
 export const updateSelfReviewStatus: RequestHandler<
-  UpdateIdParams,
+  { requestid: string },
   unknown,
-  UpdateData,
+  { selfReview: boolean },
   unknown
 > = async (req, res, next) => {
   const requestid = req.params.requestid
@@ -121,28 +116,34 @@ export const updateSelfReviewStatus: RequestHandler<
   }
 }
 
-// export const insertReviewers: RequestHandler<UpdateIdParams, unknown, ReviewerI, unknown> = async (
-//   req,
-//   res,
-//   next
-// ) => {
-//   const requestid = req.params.requestid
-//   const {
-//     reviewerid,
-//     reviewerName,
-//     reviewerEmail,
-//     role,
-//     image,
-//     feedbackSubmitted,
-//   } = req.body
-//   try {
-//     const request = await RequestsModel.findByIdAndUpdate(
-//       requestid,
-//       { $push: { reviewers: { $each: reviewers } } },
-//       { new: true }
-//     )
-//     return request
-//   } catch (error) {
-//     next(error)
-//   }
-// }
+//Insert an array of reviweres into a specific request
+export const insertReviewers: RequestHandler<
+  { requestid: string },
+  unknown,
+  ReviewerI[],
+  unknown
+> = async (req, res, next) => {
+  const requestid = req.params.requestid
+  const newReviewers = req.body
+  try {
+    if (!mongoose.isValidObjectId(requestid)) {
+      throw createHttpError(400, `Request id: ${requestid} is invalid `)
+    }
+    const request = await RequestsModel.findById(requestid).exec()
+    if (!request) {
+      throw createHttpError(404, `Request with ${requestid} was not found`)
+    }
+    const updatedRequest: RequestsI | null = await RequestsModel.findByIdAndUpdate(
+      requestid,
+      { $push: { reviewers: { $each: newReviewers } } },
+      { new: true }
+    ).exec()
+    if (updatedRequest) {
+      res.status(200).json(updatedRequest)
+    } else {
+      res.status(404).send('Request not found')
+    }
+  } catch (error) {
+    next(error)
+  }
+}
