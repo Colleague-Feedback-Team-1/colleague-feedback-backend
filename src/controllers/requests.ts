@@ -104,7 +104,7 @@ export const deleteRequest: RequestHandler = async (req, res, next) => {
     next(error)
   }
 }
-
+//Update statuses
 export const updateSelfReviewStatus: RequestHandler<
   { requestid: string },
   unknown,
@@ -196,7 +196,7 @@ export const insertReviewers: RequestHandler<
     next(error)
   }
 }
-
+//Update to the feedback status
 export const updateFeedbackSubmittedStatus: RequestHandler<
   { requestid: string; reviewerid: string },
   unknown,
