@@ -41,7 +41,6 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
 ) => {
   try {
     const {
-      employeeid,
       employeeName,
       employeeEmail,
       assignedManagerid,
@@ -51,11 +50,14 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
       dateRequested,
       reviewers,
     } = req.body
-
+    const sanitizedEmployeeid = validator.escape(req.body.employeeid)
     //Multiple requests?
-    const existingRequest = await RequestsModel.findOne({ employeeid }).exec()
+    const existingRequest = await RequestsModel.findOne({ sanitizedEmployeeid }).exec()
     if (existingRequest) {
-      throw createHttpError(409, `A request with employee id: ${employeeid} already exists`)
+      throw createHttpError(
+        409,
+        `A request with employee id: ${sanitizedEmployeeid} already exists`
+      )
     }
     // Validate input data
     if (!validator.isEmail(employeeEmail)) {
@@ -66,16 +68,17 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
     const sanitizedEmployeeName = validator.trim(employeeName)
     const sanitizedEmployeeEmail = validator.normalizeEmail(employeeEmail)
     const sanitizedAssignedManagerName = validator.trim(assignedManagerName)
+    const sanitizedDateRequested = validator.toDate(dateRequested)
 
     const employeeToBeReviewed = RequestsModel.create({
-      employeeid: employeeid,
+      employeeid: sanitizedEmployeeid,
       employeeName: sanitizedEmployeeName,
       employeeEmail: sanitizedEmployeeEmail,
       assignedManagerid: assignedManagerid,
       assignedManagerName: sanitizedAssignedManagerName,
       confirmedByHR: confirmedByHR,
       selfReview: selfReview,
-      dateRequested: dateRequested,
+      dateRequested: sanitizedDateRequested ,
       reviewers,
     })
     res.status(200).json(employeeToBeReviewed)
