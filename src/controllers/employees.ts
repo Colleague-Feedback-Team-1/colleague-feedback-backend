@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express'
 import createHttpError from 'http-errors'
 import EmployeeModel from '../data_models/employee'
+import { SignUpBody } from '../data_models/employee'
 import bcrypt from 'bcrypt'
 import validator from 'validator'
 import { isValidEmail, isValidUsername } from '../utils/validators'
@@ -11,32 +12,45 @@ export const getAuthenticatedEmployee: RequestHandler = async (req, res, next) =
     if (!authenticatedUserId) {
       throw createHttpError(401, 'User not authenticated')
     }
-    const user = await EmployeeModel.findById(authenticatedUserId).select('+employeeEmail +status').exec()
+    const user = await EmployeeModel.findById(authenticatedUserId)
+      .select('+employeeEmail +companyRole')
+      .exec()
     res.status(200).json(user)
   } catch (error) {
     next(error)
   }
 }
-interface SignUpBody {
-  employeeName: string
-  employeeEmail: string
-  password: string
-  status: string
-}
+
 export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = async (
   req,
   res,
   next
 ) => {
-  const { employeeName, employeeEmail, password: passwordRaw, status } = req.body
+  const {
+    employeeName,
+    employeeEmail,
+    password: passwordRaw,
+    companyRole,
+    profilePicture,
+    privileges,
+  } = req.body
   //Using a validator to sanitize user input
   const sanitizedUsername = validator.escape(employeeName).trim()
   const sanitizedEmail = validator.escape(employeeEmail).trim()
   const sanitizedPassword = validator.escape(passwordRaw).trim()
-  const sanitizedStatus = validator.escape(status).trim()
+  const sanitizedRole = validator.escape(companyRole).trim()
+  const sanitizedProfilePic = validator.escape(profilePicture).trim()
+  // const sanitizedPrivilege = validator.escape(privileges).trim()
 
   try {
-    if (!sanitizedUsername || !sanitizedEmail || !sanitizedPassword || !sanitizedStatus) {
+    if (
+      !sanitizedUsername ||
+      !sanitizedEmail ||
+      !sanitizedPassword ||
+      !sanitizedRole ||
+      !privileges ||
+      !['Admin', 'User', 'Manager'].includes(privileges)
+    ) {
       throw createHttpError(400, 'Parameters missing')
     }
 
@@ -56,7 +70,9 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
       throw createHttpError(409, 'Username already taken')
     }
 
-    const existingEmail = await EmployeeModel.findOne({ employeeEmail: { $eq: sanitizedEmail } }).exec()
+    const existingEmail = await EmployeeModel.findOne({
+      employeeEmail: { $eq: sanitizedEmail },
+    }).exec()
     if (existingEmail) {
       throw createHttpError(409, 'Email already taken')
     }
@@ -67,7 +83,9 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
       employeeName: sanitizedUsername,
       employeeEmail: sanitizedEmail,
       password: passwordHashed,
-      status: sanitizedStatus,
+      companyRole: sanitizedRole,
+      profilePicture: sanitizedProfilePic,
+      privileges: privileges,
     })
 
     // Store session data
