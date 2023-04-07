@@ -3,5 +3,7 @@ import * as QuestionsController from '../controllers/questions'
 
 const router = express.Router()
 
-//get all 
-router.get("/", QuestionsController.getAll )
+//get all
+router.get('/', QuestionsController.getAll)
+
+export default router
