@@ -8,8 +8,8 @@ import mongoose from 'mongoose'
 //Get all
 export const getAll: RequestHandler = async (req, res, next) => {
   try {
-    const toBeReviewedAll = await RequestsModel.find().exec()
-    res.status(200).json(toBeReviewedAll)
+    const requestsAll = await RequestsModel.find().exec()
+    res.status(200).json(requestsAll)
   } catch (error) {
     // Pass any errors to the error handling middleware
     next(error)
