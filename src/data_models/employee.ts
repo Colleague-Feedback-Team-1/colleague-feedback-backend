@@ -1,14 +1,26 @@
 import { InferSchemaType, Schema, model } from 'mongoose'
 
+export interface SignUpBody {
+  employeeName: string
+  employeeEmail: string
+  password: string
+  companyRole: string
+  profilePicture: string
+  privileges: 'Admin' | 'User' | 'Manager'
+}
+
 const employeeSchema = new Schema({
   employeeName: { type: String, required: true, unique: true },
   employeeEmail: { type: String, required: true, unique: true },
   password: { type: String, required: true, select: false },
-  role: { type: String },
+  companyRole: { type: String, required: true, unique: true },
   profilePicture: { type: String },
-  status: { type: String, required:true },
+  privileges: {
+    type: String,
+    enum: ['Admin', 'User', 'Manager'],
+    required: true,
+  },
 })
-
 type Employee = InferSchemaType<typeof employeeSchema>
 
 export default model<Employee>('Employee', employeeSchema)

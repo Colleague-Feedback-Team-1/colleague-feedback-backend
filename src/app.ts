@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express, { NextFunction, Request, Response } from 'express'
 import userRoutes from './routes/employees'
 import RequestRoutes from './routes/requests'
+import QuestionsRoutes from './routes/requests'
 import morgan from 'morgan'
 import createHttpError, { isHttpError } from 'http-errors'
 import session from 'express-session'
@@ -30,15 +31,15 @@ app.use(
   })
 )
 
-
 app.use('/api/employees', userRoutes)
 //requests endpoint
-app.use("/api/review-requests", RequestRoutes)
+app.use('/api/review-requests', RequestRoutes)
+//questions endpoint
+app.use('/api/questions', QuestionsRoutes)
 
 app.use((req, res, next) => {
   next(createHttpError(404, 'Endpoint not found'))
 })
-
 
 // Error handler for all routes
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
