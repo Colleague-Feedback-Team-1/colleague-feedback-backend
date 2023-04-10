@@ -3,7 +3,6 @@ import createHttpError from 'http-errors'
 import feedbackDataModel from '../data_models/feedbackData'
 import { AnswerScoreI, AnswerBySectionI, FeedbackDataI } from '../data_models/feedbackData'
 import validator from 'validator'
-import mongoose from 'mongoose'
 
 export const getAll: RequestHandler = async (req, res, next) => {
   try {
