@@ -49,13 +49,9 @@ export const insertFeedbackData: RequestHandler<
 > = async (req, res, next) => {
   const { body } = req
 
-  if (!body.requestid || !body.employeeid || !body.sections) {
-    return next(createHttpError(400, 'Missing required data'))
-  }
-  const sanitizedRequestid = validator.escape(req.body.requestid)
-  const sanitizedEmployeeid = validator.escape(req.body.employeeid)
   const answersBySection: AnswerBySectionI[] = []
 
+  // Calculate average scores for each section
   for (const section of body.sections) {
     const scores: number[] = []
     const openFeedback: string[] = []
@@ -65,12 +61,8 @@ export const insertFeedbackData: RequestHandler<
         scores.push(question.score)
       }
       if (question.openFeedback !== undefined) {
-        openFeedback.push(validator.escape(question.openFeedback))
+        openFeedback.push(question.openFeedback)
       }
-    }
-
-    if (scores.length === 0) {
-      return next(createHttpError(400, `Missing scores for section ${section.sectionName}`))
     }
 
     const averageScore: number = scores.reduce((a, b) => a + b, 0) / scores.length
@@ -80,6 +72,7 @@ export const insertFeedbackData: RequestHandler<
       openFeedback: openFeedback,
     }
 
+    // Store scores by section name
     const existingSectionIndex = answersBySection.findIndex(
       (answerBySection) => answerBySection.sectionName === section.sectionName
     )
@@ -95,36 +88,120 @@ export const insertFeedbackData: RequestHandler<
     }
   }
 
+  // Check if feedback data with the given requestId already exists
+  const existingFeedbackData = await feedbackDataModel.findOne({ requestId: body.requestid })
+
+  if (existingFeedbackData) {
+    res.status(409).send('Feedback data with this requestid already exists')
+    return
+  }
+
+  // Create new feedback data
   const newFeedbackData: FeedbackDataI = {
-    requestId: sanitizedRequestid,
-    employeeId: sanitizedEmployeeid,
+    requestId: body.requestid,
+    employeeId: body.employeeid,
     answersBySection: answersBySection,
   }
 
   try {
+    await feedbackDataModel.create(newFeedbackData)
+    res.sendStatus(201)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const updateFeedbackData: RequestHandler<
+  unknown,
+  unknown,
+  FeedbackRequestI,
+  unknown
+> = async (req, res, next) => {
+  const { body } = req
+  const answersBySection: AnswerBySectionI[] = []
+
+  // Check if the request contains data
+  if (!body.sections || body.sections.length === 0) {
+    return res.sendStatus(400)
+  }
+
+  // Loop through each section in the request
+  body.sections.forEach((section) => {
+    const { questions } = section
+    const scores: number[] = []
+    const openFeedback: string[] = []
+
+    // Loop through each question in the section
+    questions.forEach((question) => {
+      if (question.score !== undefined) {
+        scores.push(question.score)
+      }
+      if (question.openFeedback !== undefined) {
+        openFeedback.push(question.openFeedback)
+      }
+    })
+
+    // Calculate the average score for the section
+    const averageScore = scores.reduce((a, b) => a + b, 0) / scores.length
+
+    // Create an AnswerScoreI object for the section
+    const answerScore: AnswerScoreI = {
+      average: averageScore,
+      openFeedback: openFeedback,
+    }
+
+    // Check if the section already exists in answersBySection array
+    const existingSectionIndex = answersBySection.findIndex(
+      (answerBySection) => answerBySection.sectionName === section.sectionName
+    )
+
+    if (existingSectionIndex !== -1) {
+      // Add the AnswerScore object to the existing section
+      answersBySection[existingSectionIndex].score.push(answerScore)
+    } else {
+      // Create a new AnswerBySection object for the section
+      const answerBySection: AnswerBySectionI = {
+        sectionName: section.sectionName,
+        score: [answerScore],
+      }
+      answersBySection.push(answerBySection)
+    }
+  })
+
+  // Create a new FeedbackData object
+  const newFeedbackData: FeedbackDataI = {
+    requestId: body.requestid,
+    employeeId: body.employeeid,
+    answersBySection: answersBySection,
+  }
+
+  try {
+    // Find the existing feedback data by requestId
     const existingData = await feedbackDataModel.findOne({ requestId: newFeedbackData.requestId })
 
-    if (existingData) {
-      existingData.answersBySection.forEach(
-        (existingAnswerBySection: { sectionName: string; score: AnswerScoreI[] }) => {
-          const newAnswerBySectionIndex = newFeedbackData.answersBySection.findIndex(
-            (newAnswerBySection) =>
-              newAnswerBySection.sectionName === existingAnswerBySection.sectionName
-          )
+    if (!existingData) {
+      throw createHttpError(404, 'Feedback data not found')
+    }
 
-          if (newAnswerBySectionIndex !== -1) {
-            const newAnswerScores = newFeedbackData.answersBySection[newAnswerBySectionIndex].score
-            existingAnswerBySection.score.push(...newAnswerScores)
-          }
-        }
+    // Merge the new feedback data with the existing data
+    newFeedbackData.answersBySection.forEach((newSection) => {
+      const { sectionName, score } = newSection
+      const existingSection = existingData.answersBySection.find(
+        (existingSection: { sectionName: string }) => existingSection.sectionName === sectionName
       )
 
-      await existingData.save()
-      res.sendStatus(200)
-    } else {
-      await feedbackDataModel.create(newFeedbackData)
-      res.sendStatus(201)
-    }
+      if (existingSection) {
+        // Add the scores from the new section to the existing section
+        existingSection.score.push(...score)
+      } else {
+        // Add the new section data to the existing data
+        existingData.answersBySection.push(newSection)
+      }
+    })
+
+    // Save the updated feedback data
+    await existingData.save()
+    res.sendStatus(200)
   } catch (error) {
     next(error)
   }
