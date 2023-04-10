@@ -66,7 +66,7 @@ export const insertFeedbackData: RequestHandler<
         scores.push(question.score)
       }
       if (question.openFeedback !== undefined) {
-        openFeedback.push(question.openFeedback)
+        openFeedback.push(validator.escape(question.openFeedback))
       }
     }
 
