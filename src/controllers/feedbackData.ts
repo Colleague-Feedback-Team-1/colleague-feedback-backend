@@ -5,13 +5,114 @@ import { AnswerScoreI, AnswerBySectionI, FeedbackDataI } from '../data_models/fe
 import validator from 'validator'
 import mongoose from 'mongoose'
 
-
 export const getAll: RequestHandler = async (req, res, next) => {
-    try {
-      const toBeReviewedAll = await feedbackDataModel.find().exec()
-      res.status(200).json(toBeReviewedAll)
-    } catch (error) {
-      // Pass any errors to the error handling middleware
-      next(error)
+  try {
+    const toBeReviewedAll = await feedbackDataModel.find().exec()
+    res.status(200).json(toBeReviewedAll)
+  } catch (error) {
+    // Pass any errors to the error handling middleware
+    next(error)
+  }
+}
+
+interface SectionI {
+  sectionName: string
+  questions: {
+    score?: number
+    openFeedback?: string
+    isFreeForm: boolean
+  }[]
+}
+
+interface FeedbackRequestI {
+  requestid: string
+  employeedid: string
+  sections: SectionI[]
+}
+
+export const insertFeedbackData: RequestHandler<unknown, unknown, FeedbackRequestI> = async (
+  req,
+  res,
+  next
+) => {
+  const { body } = req
+
+  if (!body.requestid || !body.employeedid || !body.sections) {
+    return next(createHttpError(400, 'Missing required data'))
+  }
+
+  const answersBySection: AnswerBySectionI[] = []
+
+  for (const section of body.sections) {
+    const scores: number[] = []
+    const openFeedback: string[] = []
+
+    for (const question of section.questions) {
+      if (question.score !== undefined) {
+        scores.push(question.score)
+      }
+      if (question.openFeedback !== undefined) {
+        openFeedback.push(question.openFeedback)
+      }
+    }
+
+    if (scores.length === 0) {
+      return next(createHttpError(400, `Missing scores for section ${section.sectionName}`))
+    }
+
+    const averageScore: number = scores.reduce((a, b) => a + b, 0) / scores.length
+
+    const answerScore: AnswerScoreI = {
+      average: averageScore,
+      openFeedback: openFeedback,
+    }
+
+    const existingSectionIndex = answersBySection.findIndex(
+      (answerBySection) => answerBySection.sectionName === section.sectionName
+    )
+
+    if (existingSectionIndex !== -1) {
+      answersBySection[existingSectionIndex].score.push(answerScore)
+    } else {
+      const answerBySection: AnswerBySectionI = {
+        sectionName: section.sectionName,
+        score: [answerScore],
+      }
+      answersBySection.push(answerBySection)
     }
   }
+
+  const newFeedbackData: FeedbackDataI = {
+    requestId: body.requestid,
+    employeeId: body.employeedid,
+    answersBySection: answersBySection,
+  }
+
+  try {
+    const existingData = await feedbackDataModel.findOne({ requestId: newFeedbackData.requestId })
+
+    if (existingData) {
+      existingData.answersBySection.forEach(
+        (existingAnswerBySection: { sectionName: string; score: AnswerScoreI[] }) => {
+          const newAnswerBySectionIndex = newFeedbackData.answersBySection.findIndex(
+            (newAnswerBySection) =>
+              newAnswerBySection.sectionName === existingAnswerBySection.sectionName
+          )
+
+          if (newAnswerBySectionIndex !== -1) {
+            const newAnswerScores = newFeedbackData.answersBySection[newAnswerBySectionIndex].score
+            existingAnswerBySection.score.push(...newAnswerScores)
+          }
+        }
+      )
+
+      await existingData.save()
+      res.sendStatus(200)
+    } else {
+      await feedbackDataModel.create(newFeedbackData)
+      res.sendStatus(201)
+    }
+  } catch (error) {
+    next(error)
+  }
+}
