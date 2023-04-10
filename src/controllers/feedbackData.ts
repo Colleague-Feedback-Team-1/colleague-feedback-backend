@@ -7,10 +7,24 @@ import mongoose from 'mongoose'
 
 export const getAll: RequestHandler = async (req, res, next) => {
   try {
-    const toBeReviewedAll = await feedbackDataModel.find().exec()
+    const toBeReviewedAll = await feedbackDataModel.find().lean().exec()
     res.status(200).json(toBeReviewedAll)
   } catch (error) {
-    // Pass any errors to the error handling middleware
+    next(error)
+  }
+}
+
+export const getFeedbackDataByRequestId: RequestHandler<{ requestid: string }> = async (
+  req,
+  res,
+  next
+) => {
+  const requestId = validator.escape(req.params.requestid)
+  try {
+    const feedbackData = await feedbackDataModel.findOne({ requestId }).exec()
+
+    res.status(200).json(feedbackData)
+  } catch (error) {
     next(error)
   }
 }
@@ -30,11 +44,12 @@ interface FeedbackRequestI {
   sections: SectionI[]
 }
 
-export const insertFeedbackData: RequestHandler<unknown, unknown, FeedbackRequestI> = async (
-  req,
-  res,
-  next
-) => {
+export const insertFeedbackData: RequestHandler<
+  unknown,
+  unknown,
+  FeedbackRequestI,
+  unknown
+> = async (req, res, next) => {
   const { body } = req
 
   if (!body.requestid || !body.employeedid || !body.sections) {
