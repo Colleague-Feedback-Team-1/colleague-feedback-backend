@@ -7,8 +7,8 @@ import mongoose from 'mongoose'
 
 export const getAll: RequestHandler = async (req, res, next) => {
     try {
-      const toBeReviewedAll = await SectionModel.find().exec()
-      res.status(200).json(toBeReviewedAll)
+      const questionsAll = await SectionModel.find().exec()
+      res.status(200).json(questionsAll)
     } catch (error) {
       // Pass any errors to the error handling middleware
       next(error)
