@@ -29,19 +29,17 @@ export const getFeedbackDataByRequestId: RequestHandler<{ requestid: string }> =
   }
 }
 
-interface SectionI {
-  sectionName: string
-  questions: {
-    score?: number
-    openFeedback?: string
-    isFreeForm: boolean
-  }[]
-}
-
 interface FeedbackRequestI {
   requestid: string
-  employeedid: string
-  sections: SectionI[]
+  employeeid: string
+  sections: {
+    sectionName: string
+    questions: {
+      question: string
+      score?: number
+      openFeedback?: string
+    }[]
+  }[]
 }
 
 export const insertFeedbackData: RequestHandler<
@@ -52,10 +50,11 @@ export const insertFeedbackData: RequestHandler<
 > = async (req, res, next) => {
   const { body } = req
 
-  if (!body.requestid || !body.employeedid || !body.sections) {
+  if (!body.requestid || !body.employeeid || !body.sections) {
     return next(createHttpError(400, 'Missing required data'))
   }
-
+  const sanitizedRequestid = validator.escape(req.body.requestid)
+  const sanitizedEmployeeid = validator.escape(req.body.employeeid)
   const answersBySection: AnswerBySectionI[] = []
 
   for (const section of body.sections) {
@@ -98,8 +97,8 @@ export const insertFeedbackData: RequestHandler<
   }
 
   const newFeedbackData: FeedbackDataI = {
-    requestId: body.requestid,
-    employeeId: body.employeedid,
+    requestId: sanitizedRequestid,
+    employeeId: sanitizedEmployeeid,
     answersBySection: answersBySection,
   }
 
