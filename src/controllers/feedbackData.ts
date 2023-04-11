@@ -55,7 +55,7 @@ export const insertFeedbackData: RequestHandler<
   for (const section of sections) {
     // Validate sectionName field
     if (!validator.whitelist(section.sectionName, 'a-zA-Z0-9\\s')) {
-      res.status(400).send(`Invalid sectionName in section ${section.sectionName}`)
+      res.status(400).send('Invalid sectionName')
       return
     }
     for (const question of section.questions) {
@@ -64,14 +64,14 @@ export const insertFeedbackData: RequestHandler<
         question.score !== undefined &&
         (!validator.isInt(String(question.score), { min: 1, max: 5 }) || isNaN(question.score))
       ) {
-        res.status(400).send(`Invalid score in section ${section.sectionName}`)
+        res.status(400).send('Invalid score')
         return
       }
       if (
         question.openFeedback !== undefined &&
         !validator.whitelist(question.openFeedback, 'a-zA-Z0-9\\s')
       ) {
-        res.status(400).send(`Invalid question in section ${section.sectionName}`)
+        res.status(400).send('Invalid open feedback')
         return
       }
     }
