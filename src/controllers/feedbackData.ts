@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express'
 import createHttpError from 'http-errors'
 import feedbackDataModel from '../data_models/feedbackData'
+import { validateFeedbackData } from '../utils/validators'
 import { AnswerScoreI, AnswerBySectionI, FeedbackDataI } from '../data_models/feedbackData'
 import validator from 'validator'
 
@@ -47,34 +48,10 @@ export const insertFeedbackData: RequestHandler<
   unknown
 > = async (req, res, next) => {
   const { requestid, employeeid, sections } = req.body
-  if (!validator.isAlphanumeric(requestid) || !validator.isAlphanumeric(employeeid)) {
-    return res.status(400).send('Invalid input data')
-  }
   const sanitizedRequestId = validator.escape(requestid)
   const sanitizedEmployeeId = validator.escape(employeeid)
-  for (const section of sections) {
-    // Validate sectionName field
-    if (!validator.whitelist(section.sectionName, 'a-zA-Z0-9\\s')) {
-      res.status(400).send('Invalid sectionName')
-      return
-    }
-    for (const question of section.questions) {
-      // Validate question field
-      if (
-        question.score !== undefined &&
-        (!validator.isInt(String(question.score), { min: 1, max: 5 }) || isNaN(question.score))
-      ) {
-        res.status(400).send('Invalid score')
-        return
-      }
-      if (
-        question.openFeedback !== undefined &&
-        !validator.whitelist(question.openFeedback, 'a-zA-Z0-9\\s')
-      ) {
-        res.status(400).send('Invalid open feedback')
-        return
-      }
-    }
+  if (!validateFeedbackData(requestid, employeeid, sections)) {
+    return res.status(400).send('Invalid input data')
   }
 
   const answersBySection: AnswerBySectionI[] = []
@@ -146,36 +123,12 @@ export const updateFeedbackData: RequestHandler<
   FeedbackRequestI,
   unknown
 > = async (req, res, next) => {
-    const { requestid, employeeid, sections } = req.body
-    if (!validator.isAlphanumeric(requestid) || !validator.isAlphanumeric(employeeid)) {
-      return res.status(400).send('Invalid input data')
-    }
-    const sanitizedRequestId = validator.escape(requestid)
-    const sanitizedEmployeeId = validator.escape(employeeid)
-    for (const section of sections) {
-      // Validate sectionName field
-      if (!validator.whitelist(section.sectionName, 'a-zA-Z0-9\\s')) {
-        res.status(400).send('Invalid sectionName')
-        return
-      }
-      for (const question of section.questions) {
-        // Validate question field
-        if (
-          question.score !== undefined &&
-          (!validator.isInt(String(question.score), { min: 1, max: 5 }) || isNaN(question.score))
-        ) {
-          res.status(400).send('Invalid score')
-          return
-        }
-        if (
-          question.openFeedback !== undefined &&
-          !validator.whitelist(question.openFeedback, 'a-zA-Z0-9\\s')
-        ) {
-          res.status(400).send('Invalid open feedback')
-          return
-        }
-      }
-    }
+  const { requestid, employeeid, sections } = req.body
+  const sanitizedRequestId = validator.escape(requestid)
+  const sanitizedEmployeeId = validator.escape(employeeid)
+  if (!validateFeedbackData(requestid, employeeid, sections)) {
+    return res.status(400).send('Invalid input data')
+  }
   const answersBySection: AnswerBySectionI[] = []
 
   // Check if the request contains data
