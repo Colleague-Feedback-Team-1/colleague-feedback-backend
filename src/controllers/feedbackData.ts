@@ -146,16 +146,45 @@ export const updateFeedbackData: RequestHandler<
   FeedbackRequestI,
   unknown
 > = async (req, res, next) => {
-  const { body } = req
+    const { requestid, employeeid, sections } = req.body
+    if (!validator.isAlphanumeric(requestid) || !validator.isAlphanumeric(employeeid)) {
+      return res.status(400).send('Invalid input data')
+    }
+    const sanitizedRequestId = validator.escape(requestid)
+    const sanitizedEmployeeId = validator.escape(employeeid)
+    for (const section of sections) {
+      // Validate sectionName field
+      if (!validator.whitelist(section.sectionName, 'a-zA-Z0-9\\s')) {
+        res.status(400).send('Invalid sectionName')
+        return
+      }
+      for (const question of section.questions) {
+        // Validate question field
+        if (
+          question.score !== undefined &&
+          (!validator.isInt(String(question.score), { min: 1, max: 5 }) || isNaN(question.score))
+        ) {
+          res.status(400).send('Invalid score')
+          return
+        }
+        if (
+          question.openFeedback !== undefined &&
+          !validator.whitelist(question.openFeedback, 'a-zA-Z0-9\\s')
+        ) {
+          res.status(400).send('Invalid open feedback')
+          return
+        }
+      }
+    }
   const answersBySection: AnswerBySectionI[] = []
 
   // Check if the request contains data
-  if (!body.sections || body.sections.length === 0) {
+  if (!sections || sections.length === 0) {
     return res.sendStatus(400)
   }
 
   // Loop through each section in the request
-  body.sections.forEach((section) => {
+  sections.forEach((section) => {
     const { questions } = section
     const scores: number[] = []
     const openFeedback: string[] = []
@@ -199,8 +228,8 @@ export const updateFeedbackData: RequestHandler<
 
   // Create a new FeedbackData object
   const newFeedbackData: FeedbackDataI = {
-    requestId: body.requestid,
-    employeeId: body.employeeid,
+    requestId: sanitizedRequestId,
+    employeeId: sanitizedEmployeeId,
     answersBySection: answersBySection,
   }
 
