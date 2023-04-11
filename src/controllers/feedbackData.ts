@@ -34,7 +34,6 @@ interface FeedbackRequestI {
   sections: {
     sectionName: string
     questions: {
-      question: string
       score?: number
       openFeedback?: string
     }[]
@@ -47,12 +46,41 @@ export const insertFeedbackData: RequestHandler<
   FeedbackRequestI,
   unknown
 > = async (req, res, next) => {
-  const { body } = req
+  const { requestid, employeeid, sections } = req.body
+  if (!validator.isAlphanumeric(requestid) || !validator.isAlphanumeric(employeeid)) {
+    return res.status(400).send('Invalid input data')
+  }
+  const sanitizedRequestId = validator.escape(requestid)
+  const sanitizedEmployeeId = validator.escape(employeeid)
+  for (const section of sections) {
+    // Validate sectionName field
+    if (!validator.whitelist(section.sectionName, 'a-zA-Z0-9\\s')) {
+      res.status(400).send(`Invalid sectionName in section ${section.sectionName}`)
+      return
+    }
+    for (const question of section.questions) {
+      // Validate question field
+      if (
+        question.score !== undefined &&
+        (!validator.isInt(String(question.score), { min: 1, max: 5 }) || isNaN(question.score))
+      ) {
+        res.status(400).send(`Invalid score in section ${section.sectionName}`)
+        return
+      }
+      if (
+        question.openFeedback !== undefined &&
+        !validator.whitelist(question.openFeedback, 'a-zA-Z0-9\\s')
+      ) {
+        res.status(400).send(`Invalid question in section ${section.sectionName}`)
+        return
+      }
+    }
+  }
 
   const answersBySection: AnswerBySectionI[] = []
 
   // Calculate average scores for each section
-  for (const section of body.sections) {
+  for (const section of sections) {
     const scores: number[] = []
     const openFeedback: string[] = []
 
@@ -89,7 +117,7 @@ export const insertFeedbackData: RequestHandler<
   }
 
   // Check if feedback data with the given requestId already exists
-  const existingFeedbackData = await feedbackDataModel.findOne({ requestId: body.requestid })
+  const existingFeedbackData = await feedbackDataModel.findOne({ requestId: sanitizedRequestId })
 
   if (existingFeedbackData) {
     res.status(409).send('Feedback data with this requestid already exists')
@@ -98,8 +126,8 @@ export const insertFeedbackData: RequestHandler<
 
   // Create new feedback data
   const newFeedbackData: FeedbackDataI = {
-    requestId: body.requestid,
-    employeeId: body.employeeid,
+    requestId: sanitizedRequestId,
+    employeeId: sanitizedEmployeeId,
     answersBySection: answersBySection,
   }
 
@@ -111,6 +139,7 @@ export const insertFeedbackData: RequestHandler<
   }
 }
 
+//Update feedback data
 export const updateFeedbackData: RequestHandler<
   unknown,
   unknown,
