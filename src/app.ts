@@ -12,11 +12,15 @@ import env from './utils/validateEnv'
 import MongoStore from 'connect-mongo'
 
 const app = express()
+const options = {
+  origin: `http://localhost:${env.PORT}`,
+  credentials:true
+}
 
 app.use(morgan('dev'))
 
 app.use(express.json())
-app.use(cors())
+app.use(cors(options))
 
 app.use(
   session({
