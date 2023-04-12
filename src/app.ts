@@ -11,10 +11,11 @@ import env from './utils/validateEnv'
 import MongoStore from 'connect-mongo'
 
 const app = express()
-
+const cors = require('cors')
 app.use(morgan('dev'))
 
 app.use(express.json())
+app.use(cors())
 
 app.use(
   session({
