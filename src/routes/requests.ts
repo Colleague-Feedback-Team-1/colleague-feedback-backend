@@ -6,8 +6,11 @@ const router = express.Router()
 //get all
 router.get('/', RequestsController.getAll)
 
+//Add a new endpoint that gets all requests by employeeId
+router.get('/:employeeid', RequestsController.getRequestsByEmployeeId)
+
 //get a request entry by id
-router.get('/:requestid', RequestsController.getRequestById)
+router.get('/:requestid', RequestsController.getRequestByRequestId)
 
 //add a request
 router.post('/insert-request', RequestsController.insertRequest)
