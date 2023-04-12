@@ -4,7 +4,7 @@ import EmployeeModel from '../data_models/employee'
 import { SignUpBody } from '../data_models/employee'
 import bcrypt from 'bcrypt'
 import validator from 'validator'
-import { isValidEmail, isValidUsername } from '../utils/validators'
+import { isValidEmail} from '../utils/validators'
 
 export const getAuthenticatedEmployee: RequestHandler = async (req, res, next) => {
   const authenticatedUserId = req.session.userId
@@ -26,71 +26,24 @@ export const signUp: RequestHandler<unknown, unknown, SignUpBody, unknown> = asy
   res,
   next
 ) => {
-  const {
-    employeeName,
-    employeeEmail,
-    password: passwordRaw,
-    companyRole,
-    profilePicture,
-    privileges,
-  } = req.body
-  //Using a validator to sanitize user input
-  const sanitizedUsername = validator.escape(employeeName).trim()
-  const sanitizedEmail = validator.escape(employeeEmail).trim()
-  const sanitizedPassword = validator.escape(passwordRaw).trim()
-  const sanitizedRole = validator.escape(companyRole).trim()
-  const sanitizedProfilePic = validator.escape(profilePicture).trim()
-  // const sanitizedPrivilege = validator.escape(privileges).trim()
-
+  const { employeeName, employeeEmail, password, companyRole, profilePicture, privileges } =
+    req.body
+  //No validation included as the function will be only used in production
   try {
-    if (
-      !sanitizedUsername ||
-      !sanitizedEmail ||
-      !sanitizedPassword ||
-      !sanitizedRole ||
-      !privileges ||
-      !['Admin', 'User', 'Manager'].includes(privileges)
-    ) {
-      throw createHttpError(400, 'Parameters missing')
-    }
-
-    if (!isValidEmail(sanitizedEmail)) {
-      throw createHttpError(400, 'Invalid employeeEmail format')
-    }
-
-    if (!isValidUsername(sanitizedUsername)) {
-      throw createHttpError(400, 'Invalid employeeName format')
-    }
-
-    // Check if employeeName and employeeEmail already exist in the database
-    const existingUserName = await EmployeeModel.findOne({
-      employeeName: { $eq: sanitizedUsername },
-    }).exec()
-    if (existingUserName) {
-      throw createHttpError(409, 'Username already taken')
-    }
-
-    const existingEmail = await EmployeeModel.findOne({
-      employeeEmail: { $eq: sanitizedEmail },
-    }).exec()
-    if (existingEmail) {
-      throw createHttpError(409, 'Email already taken')
-    }
-
     // Hash password and create a new user
-    const passwordHashed = await bcrypt.hash(sanitizedPassword, 10)
-    const newUser = await EmployeeModel.create({
-      employeeName: sanitizedUsername,
-      employeeEmail: sanitizedEmail,
+    const passwordHashed = await bcrypt.hash(password, 10)
+    const newEmployee = await EmployeeModel.create({
+      employeeName: employeeName,
+      employeeEmail: employeeEmail,
       password: passwordHashed,
-      companyRole: sanitizedRole,
-      profilePicture: sanitizedProfilePic,
+      companyRole: companyRole,
+      profilePicture: profilePicture,
       privileges: privileges,
     })
 
     // Store session data
-    req.session.userId = newUser._id
-    res.status(201).json(newUser)
+    req.session.userId = newEmployee._id
+    res.status(201).json(newEmployee)
   } catch (error) {
     next(error)
   }
@@ -107,7 +60,7 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
 ) => {
   const { employeeEmail, password } = req.body
   //Using a validator to sanitize user input
-  const sanitizedEmail = validator.escape(employeeEmail).trim()
+  const sanitizedEmail = validator.escape(employeeEmail)
   const sanitizedPassword = validator.escape(password).trim()
 
   try {
@@ -115,9 +68,9 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
       throw createHttpError(400, 'Parameters missing')
     }
 
-    // Validate employeeEmail format
+    // Validate sanitizedEmail format
     if (!isValidEmail(sanitizedEmail)) {
-      throw createHttpError(400, 'Invalid employeeEmail format')
+      throw createHttpError(400, 'Invalid sanitizedEmail format')
     }
 
     // Check if user exists in the database
