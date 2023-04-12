@@ -15,9 +15,26 @@ export const getAll: RequestHandler = async (req, res, next) => {
     next(error)
   }
 }
+export const getRequestsByEmployeeId: RequestHandler = async (req, res, next) => {
+  const employeeid = validator.escape(req.params.employeeid)
+  try {
+    if (!mongoose.isObjectIdOrHexString(employeeid)) {
+      throw createHttpError(400, `Employee id: ${employeeid} is invalid `)
+    }
+    const requests = await RequestsModel.findOne({employeeid}).exec()
+    if (!requests) {
+      throw createHttpError(404, `Requests of ${employeeid} not found`)
+    }
+    res.status(200).json(requests)
+  } catch (error) {
+    // Pass any errors to the error handling middleware
+    next(error)
+  }
+}
 
-//Get one employee by an id
-export const getRequestById: RequestHandler = async (req, res, next) => {
+
+//Get one request by requestid
+export const getRequestByRequestId: RequestHandler = async (req, res, next) => {
   const requestid = validator.escape(req.params.requestid)
   try {
     if (!mongoose.isValidObjectId(requestid)) {
