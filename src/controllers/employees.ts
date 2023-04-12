@@ -4,7 +4,7 @@ import EmployeeModel from '../data_models/employee'
 import { SignUpBody } from '../data_models/employee'
 import bcrypt from 'bcrypt'
 import validator from 'validator'
-import { isValidEmail} from '../utils/validators'
+import { isValidEmail } from '../utils/validators'
 
 export const getAuthenticatedEmployee: RequestHandler = async (req, res, next) => {
   const authenticatedUserId = req.session.userId
@@ -16,6 +16,15 @@ export const getAuthenticatedEmployee: RequestHandler = async (req, res, next) =
       .select('+employeeEmail +companyRole')
       .exec()
     res.status(200).json(user)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getAllEmployees: RequestHandler = async (req, res, next) => {
+  try {
+    const employees = await EmployeeModel.find().select('-password')
+    res.status(200).json(employees)
   } catch (error) {
     next(error)
   }
@@ -59,7 +68,6 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
   next
 ) => {
   const { employeeEmail, password } = req.body
-  //Using a validator to sanitize user input
   const sanitizedEmail = validator.escape(employeeEmail)
   const sanitizedPassword = validator.escape(password).trim()
 
@@ -68,20 +76,18 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
       throw createHttpError(400, 'Parameters missing')
     }
 
-    // Validate sanitizedEmail format
     if (!isValidEmail(sanitizedEmail)) {
-      throw createHttpError(400, 'Invalid sanitizedEmail format')
+      throw createHttpError(400, 'Invalid email format')
     }
 
-    // Check if user exists in the database
     const user = await EmployeeModel.findOne({ employeeEmail: { $eq: sanitizedEmail } })
       .select('+password +employeeName')
       .exec()
+
     if (!user) {
       throw createHttpError(401, 'Invalid credentials')
     }
 
-    // Check if password is correct
     const passwordMatch = await bcrypt.compare(sanitizedPassword, user.password)
     if (!passwordMatch) {
       throw createHttpError(401, 'Invalid credentials')
@@ -89,7 +95,12 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
 
     // Store session data
     req.session.userId = user._id
-    res.status(200).json(user)
+
+    //Ignore user password
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userRes } = user.toObject()
+
+    res.status(200).json(userRes)
   } catch (error) {
     next(error)
   }
