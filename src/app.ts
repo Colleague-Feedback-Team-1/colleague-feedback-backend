@@ -5,13 +5,14 @@ import RequestRoutes from './routes/requests'
 import QuestionsRoutes from './routes/questions'
 import FeedbackDataRoutes from './routes/feedbackData'
 import morgan from 'morgan'
+import cors from 'cors'
 import createHttpError, { isHttpError } from 'http-errors'
 import session from 'express-session'
 import env from './utils/validateEnv'
 import MongoStore from 'connect-mongo'
 
 const app = express()
-const cors = require('cors')
+
 app.use(morgan('dev'))
 
 app.use(express.json())
