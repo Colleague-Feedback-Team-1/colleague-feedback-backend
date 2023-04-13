@@ -18,10 +18,10 @@ export const getAll: RequestHandler = async (req, res, next) => {
 export const getRequestsByEmployeeId: RequestHandler = async (req, res, next) => {
   const employeeid = validator.escape(req.params.employeeid)
   try {
-    if (!mongoose.isObjectIdOrHexString(employeeid)) {
+    if (!mongoose.Types.ObjectId.isValid(employeeid)) {
       throw createHttpError(400, `Employee id: ${employeeid} is invalid `)
     }
-    const requests = await RequestsModel.findOne({employeeid}).exec()
+    const requests = await RequestsModel.findOne({ employeeid }).exec()
     if (!requests) {
       throw createHttpError(404, `Requests of ${employeeid} not found`)
     }
@@ -32,12 +32,11 @@ export const getRequestsByEmployeeId: RequestHandler = async (req, res, next) =>
   }
 }
 
-
 //Get one request by requestid
 export const getRequestByRequestId: RequestHandler = async (req, res, next) => {
   const requestid = validator.escape(req.params.requestid)
   try {
-    if (!mongoose.isValidObjectId(requestid)) {
+    if (!mongoose.Types.ObjectId.isValid(requestid)) {
       throw createHttpError(400, `Request id: ${requestid} is invalid `)
     }
     const request = await RequestsModel.findById(requestid).exec()
@@ -95,7 +94,7 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
       assignedManagerName: sanitizedAssignedManagerName,
       confirmedByHR: confirmedByHR,
       selfReview: selfReview,
-      dateRequested: sanitizedDateRequested ,
+      dateRequested: sanitizedDateRequested,
       reviewers,
     })
     res.status(200).json(employeeToBeReviewed)
@@ -108,7 +107,7 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
 export const deleteRequest: RequestHandler = async (req, res, next) => {
   const requestid = req.params.requestid
   try {
-    if (!mongoose.isValidObjectId(requestid)) {
+    if (!mongoose.Types.ObjectId.isValid(requestid)) {
       throw createHttpError(400, `Employee id: ${requestid} is invalid `)
     }
     const employee = await RequestsModel.findById(requestid).exec()
@@ -132,7 +131,7 @@ export const updateSelfReviewStatus: RequestHandler<
   const { selfReview, confirmedByHR } = req.body
 
   try {
-    if (!mongoose.isValidObjectId(requestid)) {
+    if (!mongoose.Types.ObjectId.isValid(requestid)) {
       throw createHttpError(400, `Request id: ${requestid} is invalid `)
     }
     const request = await RequestsModel.findById(requestid).exec()
@@ -166,7 +165,7 @@ export const insertReviewers: RequestHandler<
   const newReviewers = req.body
 
   try {
-    if (!mongoose.isValidObjectId(requestid)) {
+    if (!mongoose.Types.ObjectId.isValid(requestid)) {
       throw createHttpError(400, `Request id: ${requestid} is invalid`)
     }
 
@@ -226,10 +225,10 @@ export const updateFeedbackSubmittedStatus: RequestHandler<
   const { feedbackSubmitted } = req.body
 
   try {
-    if (!mongoose.isValidObjectId(requestid)) {
+    if (!mongoose.Types.ObjectId.isValid(requestid)) {
       throw createHttpError(400, `Request id: ${requestid} is invalid`)
     }
-    if (!mongoose.isValidObjectId(reviewerid)) {
+    if (!mongoose.Types.ObjectId.isValid(requestid)) {
       throw createHttpError(400, `Reviewer id: ${reviewerid} is invalid`)
     }
     const request = await RequestsModel.findOneAndUpdate(
