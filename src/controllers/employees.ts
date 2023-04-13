@@ -5,6 +5,7 @@ import { SignUpBody } from '../data_models/employee'
 import bcrypt from 'bcrypt'
 import validator from 'validator'
 import { isValidEmail } from '../utils/validators'
+import mongoose from 'mongoose'
 
 export const getAuthenticatedEmployee: RequestHandler = async (req, res, next) => {
   const authenticatedUserId = req.session.userId
@@ -15,6 +16,29 @@ export const getAuthenticatedEmployee: RequestHandler = async (req, res, next) =
     const user = await EmployeeModel.findById(authenticatedUserId)
       .select('+employeeEmail +companyRole')
       .exec()
+    res.status(200).json(user)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getEmployeeById: RequestHandler<
+  { employeeid: string },
+  unknown,
+  unknown,
+  unknown
+> = async (req, res, next) => {
+  const employeeid = validator.escape(req.params.employeeid)
+  try {
+    if (!mongoose.Types.ObjectId.isValid(employeeid)) {
+      throw createHttpError(400, `Employee id: ${employeeid} is invalid `)
+    }
+    const user = await EmployeeModel.findById(employeeid)
+      .select('+employeeEmail +companyRole')
+      .exec()
+    if (!user) {
+      throw createHttpError(404, `Employee with id: ${employeeid} not found`)
+    }
     res.status(200).json(user)
   } catch (error) {
     next(error)
