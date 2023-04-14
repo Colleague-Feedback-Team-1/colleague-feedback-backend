@@ -7,10 +7,10 @@ const router = express.Router()
 router.get('/', RequestsController.getAll)
 
 //Add a new endpoint that gets all requests by employeeId
-router.get('/:employeeid', RequestsController.getRequestsByEmployeeId)
+router.get('/by-employeeid/:employeeid', RequestsController.getRequestsByEmployeeId)
 
 //get a request entry by id
-router.get('/:requestid', RequestsController.getRequestByRequestId)
+router.get('/by-requestid/:requestid', RequestsController.getRequestByRequestId)
 
 //add a request
 router.post('/insert-request', RequestsController.insertRequest)
@@ -19,7 +19,7 @@ router.post('/insert-request', RequestsController.insertRequest)
 router.patch('/update-status/:requestid', RequestsController.updateSelfReviewStatus)
 
 //delete a single request entry by document id
-router.delete('/:requestid', RequestsController.deleteRequest)
+router.delete('/delete/:requestid', RequestsController.deleteRequest)
 
 //insert reviewers into a request (works with a single Reviewer Object it just needs to be inside of an array)
 router.patch('/insert-reviewers/:requestid', RequestsController.insertReviewers)

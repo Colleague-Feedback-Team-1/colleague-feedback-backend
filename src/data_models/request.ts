@@ -24,7 +24,7 @@ const ReviewerSchema = new Schema<ReviewerI>({
   reviewerName: { type: String, required: true },
   reviewerEmail: { type: String, required: true },
   role: { type: String, required: true },
-  image: { type: String, required: true },
+  image: { type: String },
   feedbackSubmitted: { type: Boolean, required: true },
 })
 const Requests = new Schema<RequestsI>(
@@ -32,12 +32,12 @@ const Requests = new Schema<RequestsI>(
     employeeid: { type: String, required: true },
     employeeName: { type: String, required: true },
     employeeEmail: { type: String, required: true },
-    assignedManagerid: { type: String, required: true },
-    assignedManagerName: { type: String, required: true },
+    assignedManagerid: { type: String },
+    assignedManagerName: { type: String },
     confirmedByHR: { type: Boolean, required: true, default: false },
     selfReview: { type: Boolean, required: true, default: false },
     dateRequested: { type: String, required: true },
-    reviewers: { type: [ReviewerSchema] },
+    reviewers: { type: [ReviewerSchema], default: [] },
   },
   { timestamps: true, collection: 'requests' }
 )
