@@ -13,8 +13,7 @@ import MongoStore from 'connect-mongo'
 
 const app = express()
 const options = {
-  origin: `http://localhost:${env.PORT}`,
-  credentials: true,
+  origin: `http://localhost:3000`,
 }
 
 app.use(morgan('dev'))
@@ -38,22 +37,22 @@ app.use(
   })
 )
 // middleware to restrict access to authenticated users only
-const restrictAccessMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  if (req.session.userId) {
-    next()
-  } else {
-    // user is not authenticated, redirect to login page or return an error message
-    return res.status(401).json({ error: 'Unauthorized access, redirect to login' })
-  }
-}
+// const restrictAccessMiddleware = (req: Request, res: Response, next: NextFunction) => {
+//   if (req.session.userId) {
+//     next()
+//   } else {
+//     // user is not authenticated, redirect to login page or return an error message
+//     return res.status(401).json({ error: 'Unauthorized access, redirect to login' })
+//   }
+// }
 
 app.use('/api/employees', userRoutes)
 //requests endpoint
-app.use('/api/review-requests', restrictAccessMiddleware, RequestRoutes)
+app.use('/api/review-requests', RequestRoutes)
 //questions endpoint
-app.use('/api/questions', restrictAccessMiddleware, QuestionsRoutes)
+app.use('/api/questions', QuestionsRoutes)
 //feedbackData endpoint
-app.use('/api/feedback-data', restrictAccessMiddleware, FeedbackDataRoutes)
+app.use('/api/feedback-data', FeedbackDataRoutes)
 
 app.use((req, res, next) => {
   next(createHttpError(404, 'Endpoint not found'))
