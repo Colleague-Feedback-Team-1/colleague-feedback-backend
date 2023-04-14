@@ -33,7 +33,12 @@ export const getRequestsByEmployeeId: RequestHandler = async (req, res, next) =>
 }
 
 //Get one request by requestid
-export const getRequestByRequestId: RequestHandler = async (req, res, next) => {
+export const getRequestByRequestId: RequestHandler <
+{ requestid: string },
+unknown,
+unknown,
+unknown
+> = async (req, res, next) => {
   const requestid = validator.escape(req.params.requestid)
   try {
     if (!mongoose.Types.ObjectId.isValid(requestid)) {
@@ -49,6 +54,7 @@ export const getRequestByRequestId: RequestHandler = async (req, res, next) => {
     next(error)
   }
 }
+
 //Insert a new request
 export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown> = async (
   req,
@@ -110,11 +116,11 @@ export const deleteRequest: RequestHandler = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(requestid)) {
       throw createHttpError(400, `Employee id: ${requestid} is invalid `)
     }
-    const employee = await RequestsModel.findById(requestid).exec()
-    if (!employee) {
+    const request = await RequestsModel.findById(requestid).exec()
+    if (!request) {
       throw createHttpError(404, `Employee with ${requestid} not found`)
     }
-    await employee.deleteOne()
+    await request.deleteOne()
     res.sendStatus(200)
   } catch (error) {
     next(error)
