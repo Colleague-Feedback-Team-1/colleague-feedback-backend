@@ -21,8 +21,8 @@ router.post('/insert-request', RequestsController.insertRequest)
 //update either selfReview field / confirmedByHR field or both of an employee document id
 router.patch('/update-status/:requestid', RequestsController.updateSelfReviewStatus)
 
-//delete a single request entry by document id
-router.delete('/delete/:requestid', RequestsController.deleteRequest)
+//Update manager and confirmed fields
+router.patch('/update-manager/:requestid', RequestsController.updateAssignedManagerAndConfirmed)
 
 //insert reviewers into a request (works with a single Reviewer Object it just needs to be inside of an array)
 router.patch('/insert-reviewers/:requestid', RequestsController.insertReviewers)
@@ -32,5 +32,8 @@ router.patch(
   '/update-status/:requestid/:reviewerid',
   RequestsController.updateFeedbackSubmittedStatus
 )
+
+//delete a single request entry by document id
+router.delete('/delete/:requestid', RequestsController.deleteRequest)
 
 export default router
