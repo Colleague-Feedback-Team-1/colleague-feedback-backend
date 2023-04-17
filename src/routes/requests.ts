@@ -6,6 +6,9 @@ const router = express.Router()
 //get all
 router.get('/', RequestsController.getAll)
 
+//get all unconfirmed requests
+router.get('/to-confirm', RequestsController.getUnconfirmedRequests)
+
 //Add a new endpoint that gets all requests by employeeId
 router.get('/by-employeeid/:employeeid', RequestsController.getRequestsByEmployeeId)
 
