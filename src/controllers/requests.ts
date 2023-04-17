@@ -31,7 +31,7 @@ export const getRequestsByEmployeeId: RequestHandler = async (req, res, next) =>
     if (!mongoose.Types.ObjectId.isValid(employeeid)) {
       throw createHttpError(400, `Employee id: ${employeeid} is invalid `)
     }
-    const requests = await RequestsModel.findOne({ employeeid }).exec()
+    const requests = await RequestsModel.find({ employeeid }).exec()
     if (!requests) {
       throw createHttpError(404, `Requests of ${employeeid} not found`)
     }
@@ -136,6 +136,40 @@ export const deleteRequest: RequestHandler = async (req, res, next) => {
     next(error)
   }
 }
+//Update assignedManager and Confirmed fields
+export const updateAssignedManagerAndConfirmed: RequestHandler<
+  { requestid: string },
+  unknown,
+  Partial<RequestsI>,
+  unknown
+> = async (req, res, next) => {
+  const requestid = validator.escape(req.params.requestid)
+  try {
+    if (!mongoose.Types.ObjectId.isValid(requestid)) {
+      throw createHttpError(400, `Request id: ${requestid} is invalid `)
+    }
+
+    const updatedFields = req.body
+
+    const updatedRequest = await RequestsModel.findByIdAndUpdate(
+      requestid,
+      updatedFields,
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).exec()
+
+    if (!updatedRequest) {
+      throw createHttpError(404, `Request with ${requestid} not found`)
+    }
+
+    res.status(200).json(updatedRequest)
+  } catch (error) {
+    next(error)
+  }
+}
+
 //Update statuses
 export const updateSelfReviewStatus: RequestHandler<
   { requestid: string },
