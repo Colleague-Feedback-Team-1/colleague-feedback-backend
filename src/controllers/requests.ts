@@ -15,6 +15,16 @@ export const getAll: RequestHandler = async (req, res, next) => {
     next(error)
   }
 }
+
+export const getUnconfirmedRequests: RequestHandler = async (req, res, next) => {
+  try {
+    const unconfirmedRequests = await RequestsModel.find({ confirmedByHR: false }).exec()
+    res.status(200).json(unconfirmedRequests)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const getRequestsByEmployeeId: RequestHandler = async (req, res, next) => {
   const employeeid = validator.escape(req.params.employeeid)
   try {
@@ -33,11 +43,11 @@ export const getRequestsByEmployeeId: RequestHandler = async (req, res, next) =>
 }
 
 //Get one request by requestid
-export const getRequestByRequestId: RequestHandler <
-{ requestid: string },
-unknown,
-unknown,
-unknown
+export const getRequestByRequestId: RequestHandler<
+  { requestid: string },
+  unknown,
+  unknown,
+  unknown
 > = async (req, res, next) => {
   const requestid = validator.escape(req.params.requestid)
   try {
