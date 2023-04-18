@@ -4,9 +4,14 @@ import { SearchOptions, SearchEntry, Client } from 'ldapts'
 import { createSession } from './utils/createSession'
 import cors from 'cors'
 
+
+interface CustomSearchEntry extends SearchEntry {
+  dn: string;
+}
+
 declare module 'express-session' {
   interface SessionData {
-    userData: SearchEntry
+    userData?: CustomSearchEntry;
   }
 }
 const options = {
@@ -43,7 +48,7 @@ app.post('/auth', createSession(), async (req, res) => {
     const searchOptions: SearchOptions = {
       scope: 'sub',
       filter: `(&(uid=${username})(objectClass=posixAccount))`,
-      attributes: ['cn', 'gidNumber', 'description', 'mail'],
+      attributes: ['cn', 'uid', 'gidNumber', 'description', 'mail'],
     }
 
     const { searchEntries } = await client.search(
@@ -56,7 +61,7 @@ app.post('/auth', createSession(), async (req, res) => {
       return res.status(404).json({ error: 'User not found' })
     }
 
-    const userData = searchEntries[0] as unknown as SearchEntry
+    const userData = searchEntries[0] as unknown as CustomSearchEntry
     console.log('Authentication successful for user:', userData)
 
     // Store the user data in the request session
