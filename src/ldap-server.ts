@@ -1,7 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
-import { SearchOptions, SearchEntry } from 'ldapts'
-import { Client } from 'ldapts'
+import { SearchOptions, SearchEntry, Client } from 'ldapts'
 import { createSession } from './utils/createSession'
 import cors from 'cors'
 
