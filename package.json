@@ -6,6 +6,7 @@
   "scripts": {
     "start": "nodemon src/server.ts",
     "ldap": "ts-node src/ldap-server.ts",
+    "update-db": "ts-node src/importData.ts",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
