@@ -10,9 +10,11 @@ declare module 'express-session' {
     userData: SearchEntry
   }
 }
-
+const options = {
+  origin: `http://localhost:3000`,
+}
 const app = express()
-app.use(cors())
+app.use(cors(options))
 const PORT = 5600
 
 const createNewClient = () => {
