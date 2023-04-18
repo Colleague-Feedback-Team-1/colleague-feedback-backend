@@ -1,22 +1,13 @@
 import 'dotenv/config'
 import mongoose from 'mongoose'
 import { Client, SearchOptions } from 'ldapts'
+import EmployeeModel from './data_models/employee'
 import app from './app'
 import env from './utils/validateEnv'
 
 const port = env.PORT
-
-const UserSchema = new mongoose.Schema({
-  uid: String,
-  displayName: String,
-  givenName: String,
-  uidNumber: Number,
-  gidNumber: Number,
-  mail: String,
-  description: String,
-})
-
-const Employee = mongoose.model('User', UserSchema)
+const schema = EmployeeModel.schema
+const Employee = mongoose.model('Employee', schema)
 
 //This function is to be used when the LDAP directroy has been populated with new users
 async function importUsersFromLDAPToMongoDB() {
