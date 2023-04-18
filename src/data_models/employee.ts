@@ -1,14 +1,5 @@
 import { InferSchemaType, Schema, model } from 'mongoose'
 
-// export interface SignUpBody {
-//   employeeName?: string
-//   employeeEmail?: string
-//   password: string
-//   companyRole?: string
-//   profilePicture?: string
-//   privileges: 'Admin' | 'User' | 'Manager'
-// }
-
 const employeeSchema = new Schema({
   uid: String,
   displayName: String,
