@@ -5,9 +5,10 @@ const router = express.Router()
 
 router.get('/', EmployeeController.getAuthenticatedEmployee)
 router.get('/all-employees', EmployeeController.getAllEmployees)
-router.get('/:employeeid', EmployeeController.getEmployeeById)
-router.post('/signup', EmployeeController.signUp)
-router.post('/login', EmployeeController.login)
+router.get('/:id', EmployeeController.getEmployeeById)
+//Login function is handled by the LDAP middleware
+
+//Destroys the session and logs the user out
 router.post('/logout', EmployeeController.logout)
 
 export default router
