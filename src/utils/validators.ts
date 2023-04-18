@@ -11,16 +11,20 @@ export function isValidUsername(username: string): boolean {
 }
 
 interface Section {
-  sectionName: string;
-  questions: Question[];
+  sectionName: string
+  questions: Question[]
 }
 
 interface Question {
-  score?: number;
-  openFeedback?: string;
+  score?: number
+  openFeedback?: string
 }
 
-export function validateFeedbackData(requestid: string, employeeid: string, sections: Section[]): boolean {
+export function validateFeedbackData(
+  requestid: string,
+  employeeid: string,
+  sections: Section[]
+): boolean {
   if (!validator.isAlphanumeric(requestid) || !validator.isAlphanumeric(employeeid)) {
     return false
   }
