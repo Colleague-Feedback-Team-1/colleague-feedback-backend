@@ -18,6 +18,6 @@ const Section= new Schema<SectionI>({
   questions: { type: [QuestionSchema] },
 })
 
-type Section = InferSchemaType<typeof Section>
+type Question = InferSchemaType<typeof Section>
 
-export default model<Section>("Section", Section)
+export default model<Question>("Question", Section)
