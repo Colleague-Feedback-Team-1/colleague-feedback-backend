@@ -16,6 +16,7 @@ declare module 'express-session' {
 }
 const options = {
   origin: `http://localhost:3000`,
+  credentials: true, 
 }
 const app = express()
 app.use(cors(options))
