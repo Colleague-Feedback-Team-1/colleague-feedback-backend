@@ -1,12 +1,25 @@
 import { RequestHandler } from 'express'
-import SectionModel from '../data_models/questions'
-
+import QuestionModel, { SectionI } from '../data_models/questions'
 
 export const getAll: RequestHandler = async (req, res, next) => {
-    try {
-      const questionsAll = await SectionModel.find().exec()
-      res.status(200).json(questionsAll)
-    } catch (error) {
-      next(error)
-    }
+  try {
+    const questionsAll = await QuestionModel.find().exec()
+    res.status(200).json(questionsAll)
+  } catch (error) {
+    next(error)
   }
+}
+
+
+export const insertSections: RequestHandler = async (req, res, next) => {
+  try {
+    const sections: SectionI[] = req.body.sections;
+
+    // Insert sections and questions
+    const insertedSections = await QuestionModel.insertMany(sections);
+
+    res.status(200).json(insertedSections);
+  } catch (error) {
+    next(error);
+  }
+};
