@@ -5,5 +5,6 @@ const router = express.Router()
 
 //get all
 router.get('/', QuestionsController.getAll)
+router.post('/insert-questions', QuestionsController.insertSections)
 
 export default router
