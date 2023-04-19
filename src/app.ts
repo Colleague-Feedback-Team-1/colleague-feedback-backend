@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import env from './utils/validateEnv'
+import { createSession } from './utils/createSession';
 import express, { NextFunction, Request, Response } from 'express'
 import userRoutes from './routes/employees'
 import RequestRoutes from './routes/requests'
@@ -8,34 +8,20 @@ import FeedbackDataRoutes from './routes/feedbackData'
 import morgan from 'morgan'
 import cors from 'cors'
 import createHttpError, { isHttpError } from 'http-errors'
-import session from 'express-session'
-import MongoStore from 'connect-mongo'
+
 
 const app = express()
 const options = {
   origin: `http://localhost:3000`,
+  credentials: true, 
 }
+app.use(createSession());
 
 app.use(morgan('dev'))
 
 app.use(express.json())
 app.use(cors(options))
 
-app.use(
-  session({
-    secret: env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 60 * 60 * 1000,
-    },
-    //if user stays, maxAge will be refreshed
-    rolling: true,
-    store: MongoStore.create({
-      mongoUrl: env.MONGO_CONNECTION_STRING,
-    }),
-  })
-)
 // middleware to restrict access to authenticated users only
 // const restrictAccessMiddleware = (req: Request, res: Response, next: NextFunction) => {
 //   if (req.session.userId) {
