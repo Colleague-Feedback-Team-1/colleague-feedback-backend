@@ -140,20 +140,25 @@ export const deleteRequest: RequestHandler = async (req, res, next) => {
 export const updateAssignedManagerAndConfirmed: RequestHandler<
   { requestid: string },
   unknown,
-  Partial<RequestsI>,
+  { assignedManagerid: string; assignedManagerName: string; confirmedByHR?: boolean },
   unknown
 > = async (req, res, next) => {
-  const requestid = validator.escape(req.params.requestid)
   try {
+    const requestid = validator.escape(req.params.requestid)
+
     if (!mongoose.Types.ObjectId.isValid(requestid)) {
       throw createHttpError(400, `Request id: ${requestid} is invalid `)
     }
 
-    const updatedFields = req.body
+    const { assignedManagerid, assignedManagerName, confirmedByHR } = req.body
+
+    if (!assignedManagerid || !assignedManagerName) {
+      throw createHttpError(400, 'Manager Name is a required field.')
+    }
 
     const updatedRequest = await RequestsModel.findByIdAndUpdate(
       requestid,
-      updatedFields,
+      { assignedManagerid, assignedManagerName, confirmedByHR },
       {
         new: true,
         runValidators: true,
