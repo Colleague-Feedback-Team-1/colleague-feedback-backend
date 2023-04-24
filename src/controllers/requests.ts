@@ -147,7 +147,7 @@ export const deleteRequest: RequestHandler = async (req, res, next) => {
     if (!request) {
       throw createHttpError(404, `Employee with ${requestid} not found`)
     }
-    await request.deleteOne()
+    request.deleteOne()
     res.sendStatus(200)
   } catch (error) {
     next(error)
