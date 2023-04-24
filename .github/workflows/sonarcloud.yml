@@ -17,15 +17,19 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 14
-      - name: SonarCloud Scan
+      - name: Get Node.js executable path
+        id: get-node-path
+        run: echo "::set-output name=node_path::$(which node)"
+      - name: Run SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # Additional arguments for the sonarcloud scanner
-          args: >
-            -Dsonar.projectKey=Colleague-Feedback-Team-1_colleague-feedback-backend
-            -Dsonar.organization=colleague-feedback-team-1
+         args: >
+          -Dsonar.projectKey=Colleague-Feedback-Team-1_colleague-feedback-backend
+          -Dsonar.organization=colleague-feedback-team-1
+          -Dsonar.nodejs.executable=${{ steps.get-node-path.outputs.node_path }}
+
 
 
