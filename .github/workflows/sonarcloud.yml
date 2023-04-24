@@ -12,21 +12,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '*'  # Use the latest Node.js version
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: docker://sonarsource/sonar-scanner-cli:latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          NODE_JS_EXECUTABLE: ${{ env.NODE_PATH }}  # Use the Node.js executable from the installed version
         with:
-          args:
+          # Additional arguments for the sonarcloud scanner
+          args: >
             -Dsonar.projectKey=Colleague-Feedback-Team-1_colleague-feedback-backend
             -Dsonar.organization=colleague-feedback-team-1
+            -Dsonar.nodejs.executable=$(which node)
+
 
 
 
