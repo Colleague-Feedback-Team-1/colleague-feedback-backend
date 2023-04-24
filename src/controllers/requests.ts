@@ -97,6 +97,7 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
 ) => {
   try {
     const {
+      employeeid,
       employeeName,
       employeeEmail,
       assignedManagerid,
@@ -106,27 +107,19 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
       dateRequested,
       reviewers,
     } = req.body
-    const sanitizedEmployeeid = validator.escape(req.body.employeeid)
-    //Multiple requests?
-    const existingRequest = await RequestsModel.findOne({ sanitizedEmployeeid }).exec()
-    if (existingRequest) {
-      throw createHttpError(
-        409,
-        `A request with employee id: ${sanitizedEmployeeid} already exists`
-      )
-    }
-    // Validate input data
+
+    const sanitizedEmployeeid = validator.escape(employeeid)
+
     if (!validator.isEmail(employeeEmail)) {
       throw createHttpError(400, 'Employee email is not valid')
     }
 
-    // Sanitize input data
     const sanitizedEmployeeName = validator.trim(employeeName)
     const sanitizedEmployeeEmail = validator.normalizeEmail(employeeEmail)
     const sanitizedAssignedManagerName = validator.trim(assignedManagerName)
-    const sanitizedDateRequested = validator.toDate(dateRequested)
+    const sanitizedDateRequested = dateRequested ? validator.toDate(dateRequested) : new Date()
 
-    const employeeToBeReviewed = RequestsModel.create({
+    const employeeToBeReviewed = await RequestsModel.create({
       employeeid: sanitizedEmployeeid,
       employeeName: sanitizedEmployeeName,
       employeeEmail: sanitizedEmployeeEmail,
@@ -137,12 +130,12 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
       dateRequested: sanitizedDateRequested,
       reviewers,
     })
+
     res.status(200).json(employeeToBeReviewed)
   } catch (error) {
     next(error)
   }
 }
-
 //Delete a request
 export const deleteRequest: RequestHandler = async (req, res, next) => {
   const requestid = req.params.requestid
