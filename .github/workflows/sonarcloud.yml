@@ -14,18 +14,13 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
       - name: Install dependencies
-        run: npm ci
-      - name: Install TypeScript
-        run: npm install -g typescript
-      - name: Get Node.js executable path
-        id: get-node-path
-        run: echo "::set-output name=node_path::$(which node)"
+        run: npm install
       - name: Run SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@v1.8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -33,4 +28,3 @@ jobs:
           args: >
             -Dsonar.projectKey=Colleague-Feedback-Team-1_colleague-feedback-backend
             -Dsonar.organization=colleague-feedback-team-1
-            -Dsonar.nodejs.executable=${{ steps.get-node-path.outputs.node_path }}
