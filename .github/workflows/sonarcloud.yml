@@ -12,21 +12,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  
+          fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: '*'  # Use the latest Node.js version
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          NODE_JS_EXECUTABLE: /opt/hostedtoolcache/node/14.18.3/x64/bin/node
+          NODE_JS_EXECUTABLE: ${{ env.NODE_PATH }}  # Use the Node.js executable from the installed version
         with:
           args:
             -Dsonar.projectKey=Colleague-Feedback-Team-1_colleague-feedback-backend
             -Dsonar.organization=colleague-feedback-team-1
+
 
 
 
