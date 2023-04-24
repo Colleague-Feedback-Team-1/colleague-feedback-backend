@@ -11,7 +11,6 @@ export const getAll: RequestHandler = async (req, res, next) => {
     const requestsAll = await RequestsModel.find().exec()
     res.status(200).json(requestsAll)
   } catch (error) {
-    // Pass any errors to the error handling middleware
     next(error)
   }
 }
@@ -37,7 +36,6 @@ export const getRequestsByEmployeeId: RequestHandler = async (req, res, next) =>
     }
     res.status(200).json(requests)
   } catch (error) {
-    // Pass any errors to the error handling middleware
     next(error)
   }
 }
@@ -60,7 +58,33 @@ export const getRequestByRequestId: RequestHandler<
     }
     res.status(200).json(request)
   } catch (error) {
-    // Pass any errors to the error handling middleware
+    next(error)
+  }
+}
+
+export const getRequestsByReviewerId: RequestHandler<
+  { reviewerid: string },
+  unknown,
+  unknown,
+  unknown
+> = async (req, res, next) => {
+  const reviewerid = validator.escape(req.params.reviewerid)
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(reviewerid)) {
+      throw createHttpError(400, `Reviewer id: ${reviewerid} is invalid`)
+    }
+
+    const requests = await RequestsModel.find({
+      'reviewers.reviewerid': reviewerid,
+    }).exec()
+
+    if (requests.length === 0) {
+      throw createHttpError(404, `No requests found for reviewer with id: ${reviewerid}`)
+    }
+
+    res.status(200).json(requests)
+  } catch (error) {
     next(error)
   }
 }
