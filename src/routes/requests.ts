@@ -15,6 +15,9 @@ router.get('/by-employeeid/:employeeid', RequestsController.getRequestsByEmploye
 //get a request entry by id
 router.get('/by-requestid/:requestid', RequestsController.getRequestByRequestId)
 
+//get requests by reviewer id
+router.get('/as-reviewer/:reviewerid', RequestsController.getRequestsByReviewerId)
+
 //add a request
 router.post('/insert-request', RequestsController.insertRequest)
 
