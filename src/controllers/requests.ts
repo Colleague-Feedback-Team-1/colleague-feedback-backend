@@ -136,7 +136,6 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
     next(error)
   }
 }
-
 //Delete a request
 export const deleteRequest: RequestHandler = async (req, res, next) => {
   const requestid = req.params.requestid
