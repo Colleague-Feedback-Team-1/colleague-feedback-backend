@@ -20,11 +20,13 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          NODE_JS_EXECUTABLE: /opt/hostedtoolcache/node/14.18.3/x64/bin/node
         with:
-          # Additional arguments for the sonarcloud scanner
           args:
             -Dsonar.projectKey=Colleague-Feedback-Team-1_colleague-feedback-backend
             -Dsonar.organization=colleague-feedback-team-1
+
+
 
