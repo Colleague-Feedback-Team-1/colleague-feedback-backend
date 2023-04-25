@@ -106,34 +106,45 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
       selfReview,
       dateRequested,
       reviewers,
-    } = req.body
+    } = req.body;
 
     if (!validator.isEmail(employeeEmail)) {
-      throw createHttpError(400, 'Employee email is not valid')
+      throw createHttpError(400, 'Employee email is not valid');
     }
-    const sanitizedEmployeeid = validator.escape(employeeid)
-    const sanitizedEmployeeName = validator.trim(employeeName)
-    const sanitizedEmployeeEmail = validator.normalizeEmail(employeeEmail)
-    const sanitizedAssignedManagerName = validator.trim(assignedManagerName)
-    const sanitizedDateRequested = dateRequested ? validator.toDate(dateRequested) : new Date()
+
+    const sanitizedEmployeeid = validator.escape(employeeid);
+    const sanitizedEmployeeName = validator.trim(employeeName);
+    const sanitizedEmployeeEmail = validator.normalizeEmail(employeeEmail);
+    const sanitizedAssignedManagerid = validator.escape(assignedManagerid);
+    const sanitizedAssignedManagerName = validator.trim(assignedManagerName);
+    const sanitizedDateRequested = dateRequested ? validator.toDate(dateRequested) : new Date();
+    const sanitizedReviewers = reviewers.map((reviewer: ReviewerI) => ({
+      reviewerid: validator.escape(reviewer.reviewerid),
+      reviewerName: validator.trim(reviewer.reviewerName),
+      reviewerEmail: validator.isEmail(reviewer.reviewerEmail) ? validator.normalizeEmail(reviewer.reviewerEmail) : '',
+      role: validator.trim(reviewer.role),
+      feedbackSubmitted: reviewer.feedbackSubmitted,
+    }));
 
     const employeeToBeReviewed = await RequestsModel.create({
       employeeid: sanitizedEmployeeid,
       employeeName: sanitizedEmployeeName,
       employeeEmail: sanitizedEmployeeEmail,
-      assignedManagerid: assignedManagerid,
+      assignedManagerid: sanitizedAssignedManagerid,
       assignedManagerName: sanitizedAssignedManagerName,
       confirmedByHR: confirmedByHR,
       selfReview: selfReview,
       dateRequested: sanitizedDateRequested,
-      reviewers,
-    })
+      reviewers: sanitizedReviewers,
+    });
 
-    res.status(200).json(employeeToBeReviewed)
+    res.status(200).json(employeeToBeReviewed);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
+
+
 //Delete a request
 export const deleteRequest: RequestHandler = async (req, res, next) => {
   const requestid = req.params.requestid
@@ -251,7 +262,6 @@ export const insertReviewers: RequestHandler<
         reviewerName: validator.escape(reviewer.reviewerName),
         reviewerEmail: validator.normalizeEmail(reviewer.reviewerEmail),
         role: validator.escape(reviewer.role),
-        image: validator.escape(reviewer.image),
         feedbackSubmitted: reviewer.feedbackSubmitted,
       }
     })
