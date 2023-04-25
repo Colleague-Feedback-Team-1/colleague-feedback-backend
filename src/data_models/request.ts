@@ -5,7 +5,7 @@ export interface ReviewerI {
   reviewerName: string
   reviewerEmail: string
   role: string
-  image: string
+
   feedbackSubmitted: boolean
 }
 export interface RequestsI {
@@ -24,8 +24,7 @@ const ReviewerSchema = new Schema<ReviewerI>({
   reviewerName: { type: String, required: true },
   reviewerEmail: { type: String, required: true },
   role: { type: String, required: true },
-  image: { type: String },
-  feedbackSubmitted: { type: Boolean, required: true },
+  feedbackSubmitted: { type: Boolean, default: false },
 })
 const Requests = new Schema<RequestsI>(
   {
