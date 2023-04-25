@@ -108,12 +108,10 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
       reviewers,
     } = req.body
 
-    const sanitizedEmployeeid = validator.escape(employeeid)
-
     if (!validator.isEmail(employeeEmail)) {
       throw createHttpError(400, 'Employee email is not valid')
     }
-
+    const sanitizedEmployeeid = validator.escape(employeeid)
     const sanitizedEmployeeName = validator.trim(employeeName)
     const sanitizedEmployeeEmail = validator.normalizeEmail(employeeEmail)
     const sanitizedAssignedManagerName = validator.trim(assignedManagerName)
@@ -147,7 +145,7 @@ export const deleteRequest: RequestHandler = async (req, res, next) => {
     if (!request) {
       throw createHttpError(404, `Employee with ${requestid} not found`)
     }
-    await request.deleteOne()
+    request.deleteOne()
     res.sendStatus(200)
   } catch (error) {
     next(error)

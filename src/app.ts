@@ -22,16 +22,6 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(cors(options))
 
-// middleware to restrict access to authenticated users only
-// const restrictAccessMiddleware = (req: Request, res: Response, next: NextFunction) => {
-//   if (req.session.userId) {
-//     next()
-//   } else {
-//     // user is not authenticated, redirect to login page or return an error message
-//     return res.status(401).json({ error: 'Unauthorized access, redirect to login' })
-//   }
-// }
-
 app.use('/api/employees', userRoutes)
 //requests endpoint
 app.use('/api/review-requests', RequestRoutes)
