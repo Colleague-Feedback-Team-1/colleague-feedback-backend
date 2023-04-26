@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express'
-import createHttpError from 'http-errors'
+import createHttpError, { HttpError } from 'http-errors'
 import feedbackDataModel from '../data_models/feedbackData'
 import { validateFeedbackData } from '../utils/validators'
 import { AnswerScoreI, AnswerBySectionI, FeedbackDataI } from '../data_models/feedbackData'
@@ -46,7 +46,7 @@ type ScoreAndOpenFeedback = {
 }
 
 const calculateAverageScore = (scores: number[]): number =>
-  scores.reduce((a, b) => a + b, 0) / scores.length
+  scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0
 
 const extractScoresAndOpenFeedback = (
   questions: FeedbackRequestI['sections'][0]['questions']
@@ -117,8 +117,7 @@ export const insertFeedbackData: RequestHandler<
     const existingFeedbackData = await feedbackDataModel.findOne({ requestId: sanitizedRequestId })
 
     if (existingFeedbackData) {
-      res.status(409).send('Feedback data with this requestid already exists')
-      return
+      throw createHttpError(409, 'Feedback data with this requestid already exists')
     }
 
     const newFeedbackData: FeedbackDataI = {
@@ -130,7 +129,11 @@ export const insertFeedbackData: RequestHandler<
     await feedbackDataModel.create(newFeedbackData)
     res.sendStatus(201)
   } catch (error) {
-    next(error)
+    if (error instanceof HttpError && error.statusCode === 409) {
+      await updateFeedbackData(req, res, next)
+    } else {
+      next(error)
+    }
   }
 }
 
