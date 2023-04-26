@@ -300,7 +300,7 @@ export const updateFeedbackSubmittedStatus: RequestHandler<
   unknown
 > = async (req, res, next) => {
   const requestid = validator.escape(req.params.requestid)
-  const reviewerid = validator.escape(req.params.requestid)
+  const reviewerid = validator.escape(req.params.reviewerid)
 
   const { feedbackSubmitted } = req.body
 
