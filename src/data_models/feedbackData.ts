@@ -1,6 +1,7 @@
 import { Schema, model, InferSchemaType } from 'mongoose'
 
 export interface AnswerScoreI {
+  submittedBy: 'manager' | 'reviewee' | 'reviewer'
   average: number
   openFeedback: string[]
 }
@@ -17,6 +18,7 @@ export interface FeedbackDataI {
 }
 
 const answerScoreSchema: Schema = new Schema({
+  submittedBy: { type: String, enum: ['manager', 'reviewee', 'reviewer'], required: true },
   average: { type: Number, required: true },
   openFeedback: { type: [String], required: true },
 })
