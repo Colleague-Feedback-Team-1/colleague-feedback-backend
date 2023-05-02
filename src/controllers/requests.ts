@@ -106,25 +106,27 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
       selfReview,
       dateRequested,
       reviewers,
-    } = req.body;
+    } = req.body
 
     if (!validator.isEmail(employeeEmail)) {
-      throw createHttpError(400, 'Employee email is not valid');
+      throw createHttpError(400, 'Employee email is not valid')
     }
 
-    const sanitizedEmployeeid = validator.escape(employeeid);
-    const sanitizedEmployeeName = validator.trim(employeeName);
-    const sanitizedEmployeeEmail = validator.normalizeEmail(employeeEmail);
-    const sanitizedAssignedManagerid = validator.escape(assignedManagerid);
-    const sanitizedAssignedManagerName = validator.trim(assignedManagerName);
-    const sanitizedDateRequested = dateRequested ? validator.toDate(dateRequested) : new Date();
+    const sanitizedEmployeeid = validator.escape(employeeid)
+    const sanitizedEmployeeName = validator.trim(employeeName)
+    const sanitizedEmployeeEmail = validator.normalizeEmail(employeeEmail)
+    const sanitizedAssignedManagerid = validator.escape(assignedManagerid)
+    const sanitizedAssignedManagerName = validator.trim(assignedManagerName)
+    const sanitizedDateRequested = dateRequested ? validator.toDate(dateRequested) : new Date()
     const sanitizedReviewers = reviewers.map((reviewer: ReviewerI) => ({
       reviewerid: validator.escape(reviewer.reviewerid),
       reviewerName: validator.trim(reviewer.reviewerName),
-      reviewerEmail: validator.isEmail(reviewer.reviewerEmail) ? validator.normalizeEmail(reviewer.reviewerEmail) : '',
+      reviewerEmail: validator.isEmail(reviewer.reviewerEmail)
+        ? validator.normalizeEmail(reviewer.reviewerEmail)
+        : '',
       role: validator.trim(reviewer.role),
       feedbackSubmitted: reviewer.feedbackSubmitted,
-    }));
+    }))
 
     const employeeToBeReviewed = await RequestsModel.create({
       employeeid: sanitizedEmployeeid,
@@ -136,14 +138,13 @@ export const insertRequest: RequestHandler<unknown, unknown, RequestsI, unknown>
       selfReview: selfReview,
       dateRequested: sanitizedDateRequested,
       reviewers: sanitizedReviewers,
-    });
+    })
 
-    res.status(200).json(employeeToBeReviewed);
+    res.status(200).json(employeeToBeReviewed)
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
-
+}
 
 //Delete a request
 export const deleteRequest: RequestHandler = async (req, res, next) => {
@@ -308,14 +309,15 @@ export const updateFeedbackSubmittedStatus: RequestHandler<
     if (!mongoose.Types.ObjectId.isValid(requestid)) {
       throw createHttpError(400, `Request id: ${requestid} is invalid`)
     }
-    if (!mongoose.Types.ObjectId.isValid(requestid)) {
+    if (!mongoose.Types.ObjectId.isValid(reviewerid)) {
       throw createHttpError(400, `Reviewer id: ${reviewerid} is invalid`)
     }
     const request = await RequestsModel.findOneAndUpdate(
-      { _id: requestid, 'reviewers._id': reviewerid },
+      { _id: requestid, 'reviewers.reviewerid': reviewerid },
       { $set: { 'reviewers.$.feedbackSubmitted': feedbackSubmitted } },
       { new: true }
     ).exec()
+
     if (!request) {
       throw createHttpError(404, `Request with id ${requestid} was not found`)
     }
