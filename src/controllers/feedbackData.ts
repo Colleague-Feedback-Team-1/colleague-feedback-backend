@@ -28,11 +28,12 @@ export const getFeedbackDataByRequestId: RequestHandler<{ requestid: string }> =
   }
 }
 
-interface FeedbackRequestI {
+interface FeedbackRequestI { 
   requestid: string
   employeeid: string
   sections: {
     sectionName: string
+    submittedBy: 'manager' | 'reviewee' | 'reviewer'
     questions: {
       score?: number
       openFeedback?: string
@@ -45,8 +46,8 @@ type ScoreAndOpenFeedback = {
   openFeedback: string[]
 }
 
-const calculateAverageScore = (scores: number[]): number =>
-  scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0
+const calculateAverageScore = (scores: number[]): number => // 0 if no scores
+  scores.length > 0 ? parseFloat((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2)) : 0
 
 const extractScoresAndOpenFeedback = (
   questions: FeedbackRequestI['sections'][0]['questions']
@@ -67,7 +68,11 @@ const extractScoresAndOpenFeedback = (
 const createAnswerScore = (section: FeedbackRequestI['sections'][0]): AnswerScoreI => {
   const { scores, openFeedback } = extractScoresAndOpenFeedback(section.questions)
   const averageScore = calculateAverageScore(scores)
-  return { average: averageScore, openFeedback }
+  return {
+    submittedBy: section.submittedBy, // 'manager' | 'reviewee' | 'reviewer'
+    average: averageScore,
+    openFeedback,
+  }
 }
 
 const createOrUpdateAnswerBySection = (
@@ -138,6 +143,8 @@ export const insertFeedbackData: RequestHandler<
 }
 
 //Update feedback data
+// If the feedback data already exists, update the existing data
+// Not sure if this is even needed
 export const updateFeedbackData: RequestHandler<
   unknown,
   unknown,

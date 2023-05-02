@@ -9,9 +9,9 @@ export function isValidUsername(username: string): boolean {
   const regex = /^[a-zA-Z0-9]+$/
   return regex.test(username)
 }
-
 interface Section {
   sectionName: string
+  submittedBy: 'manager' | 'reviewee' | 'reviewer'
   questions: Question[]
 }
 
@@ -31,6 +31,10 @@ export function validateFeedbackData(
   for (const section of sections) {
     // Validate sectionName field
     if (!validator.whitelist(section.sectionName, 'a-zA-Z0-9\\s')) {
+      return false
+    }
+    // Validate submittedBy field
+    if (!['manager', 'reviewee', 'reviewer'].includes(section.submittedBy)) {
       return false
     }
     for (const question of section.questions) {
