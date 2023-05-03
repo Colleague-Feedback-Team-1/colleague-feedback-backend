@@ -4,38 +4,37 @@ import EmployeeModel from '../data_models/employee'
 import validator from 'validator'
 import mongoose from 'mongoose'
 
-//Needs regex expression to extract uid from dn attribute-value pairs...
+//Regex expression to extract uid from dn string
 const extractUidFromDn = (dn: string): string | null => {
-  const regex = /uid=([^,]+),/;
-  const match = regex.exec(dn);
-  return match ? match[1] : null;
-};
-
+  const regex = /uid=([^,]+),/
+  const match = regex.exec(dn)
+  return match ? match[1] : null
+}
+// Get authenticated employee
 export const getAuthenticatedEmployee: RequestHandler = async (req, res, next) => {
   // Check if userData is available in the session and then access the authenticated user DN
-  const authenticatedDn = req.session.userData ? req.session.userData.dn : null;
+  const authenticatedDn = req.session.userData ? req.session.userData.dn : null
 
   try {
     if (!authenticatedDn) {
-      throw createHttpError(401, 'User not authenticated');
+      throw createHttpError(401, 'User not authenticated')
     }
 
-    const uid = extractUidFromDn(authenticatedDn);
+    const uid = extractUidFromDn(authenticatedDn)
 
     if (!uid) {
-      throw createHttpError(400, 'Invalid DN format');
+      throw createHttpError(400, 'Invalid DN format')
     }
 
-    const user = await EmployeeModel.findOne({ uid })
-      .select('+email +description')
-      .exec();
+    const user = await EmployeeModel.findOne({ uid }).select('+email +description').exec()
 
-    res.status(200).json(user);
+    res.status(200).json(user)
   } catch (error) {
-    next(error);
+    next(error)
   }
-};
+}
 
+// Get employee by id
 export const getEmployeeById: RequestHandler<{ id: string }, unknown, unknown, unknown> = async (
   req,
   res,
@@ -57,7 +56,7 @@ export const getEmployeeById: RequestHandler<{ id: string }, unknown, unknown, u
     next(error)
   }
 }
-
+// Get all employees
 export const getAllEmployees: RequestHandler = async (req, res, next) => {
   try {
     const employees = await EmployeeModel.find()
@@ -66,7 +65,7 @@ export const getAllEmployees: RequestHandler = async (req, res, next) => {
     next(error)
   }
 }
-
+// Logout employee by destroying session
 export const logout: RequestHandler = (req, res, next) => {
   req.session.destroy((error) => {
     if (error) {
