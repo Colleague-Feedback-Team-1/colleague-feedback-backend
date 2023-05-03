@@ -34,7 +34,7 @@ app.use((req, res, next) => {
   next(createHttpError(404, 'Endpoint not found'))
 })
 
-// Error handler for all routes
+// Error handler for all routes (including 404 and 500)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
   console.error(error)
