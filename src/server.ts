@@ -4,7 +4,7 @@ import mongoose from 'mongoose'
 
 const port = env.PORT
 
-//Connecting to db
+//Connecting to database and starting server 
 mongoose
   .connect(env.MONGO_CONNECTION_STRING)
   .then(() => {
