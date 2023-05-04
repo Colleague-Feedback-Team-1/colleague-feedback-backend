@@ -28,7 +28,7 @@ export const getFeedbackDataByRequestId: RequestHandler<{ requestid: string }> =
   }
 }
 
-interface FeedbackRequestI { 
+interface FeedbackRequestI {
   requestid: string
   employeeid: string
   sections: {
@@ -46,7 +46,9 @@ type ScoreAndOpenFeedback = {
   openFeedback: string[]
 }
 
-const calculateAverageScore = (scores: number[]): number => // 0 if no scores
+const calculateAverageScore = (
+  scores: number[]
+): number => // 0 if no scores
   scores.length > 0 ? parseFloat((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2)) : 0
 
 const extractScoresAndOpenFeedback = (
@@ -193,6 +195,50 @@ export const updateFeedbackData: RequestHandler<
 
     await existingData.save()
     res.sendStatus(200)
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Get feedback data by requestid and submittedBy parameter
+export const getFeedbackDataByRole: RequestHandler<{
+  requestid: string
+  submittedBy: 'manager' | 'reviewee' | 'reviewer'
+}> = async (req, res, next) => {
+  const sanitizedRequestId = validator.escape(req.params.requestid)
+  const submittedBy = req.params.submittedBy
+
+  if (!['manager', 'reviewee', 'reviewer'].includes(submittedBy)) {
+    return res.status(400).json({ message: 'Invalid submittedBy parameter' })
+  }
+
+  try {
+    const feedbackData = await feedbackDataModel.findOne({ requestId: sanitizedRequestId }).exec()
+
+    if (!feedbackData) {
+      return res.status(404).json({ message: 'Feedback data not found' })
+    }
+
+    const filteredAnswersBySection = feedbackData.answersBySection.map(
+      (section: AnswerBySectionI) => {
+        const filteredScore = section.score.filter(
+          (score: AnswerScoreI) => score.submittedBy === submittedBy
+        )
+        return {
+          sectionName: section.sectionName,
+          score: filteredScore,
+        }
+      }
+    )
+    const noFeedbackDataForRole = filteredAnswersBySection.every(
+      (section: AnswerBySectionI) => section.score.length === 0
+    )
+
+    if (noFeedbackDataForRole) {
+      return res.status(404).json({ message: 'No feedback data found for the specified role' })
+    }
+
+    res.status(200).json({ ...feedbackData.toObject(), answersBySection: filteredAnswersBySection })
   } catch (error) {
     next(error)
   }
