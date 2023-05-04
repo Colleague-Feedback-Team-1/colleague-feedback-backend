@@ -8,7 +8,8 @@ router.get('/', feedbackDataController.getAll)
 //insert feedback data OR update feedback data
 router.post('/insert-feedback', feedbackDataController.insertFeedbackData)
 router.patch('/insert-feedback/:requestid', feedbackDataController.updateFeedbackData)
-
+// Get feedback data by request id and submitted by enum
+router.get('/:requestid/:submittedBy', feedbackDataController.getFeedbackDataByRole)
 //find data by request id
 router.get('/:requestid', feedbackDataController.getFeedbackDataByRequestId)
 export default router
