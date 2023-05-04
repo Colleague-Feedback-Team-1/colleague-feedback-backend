@@ -240,6 +240,6 @@ export const getFeedbackDataByRole: RequestHandler<{
 
     res.status(200).json({ ...feedbackData.toObject(), answersBySection: filteredAnswersBySection })
   } catch (error) {
-    Promise.resolve(next(error));
+    next(error)
   }
 }
