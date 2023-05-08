@@ -4,11 +4,12 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "start": "nodemon src/server.ts",
-    "ldap": "ts-node src/ldap-server.ts",
+    "start-server": "nodemon src/server.ts",
+    "start-ldap": "ts-node src/ldap-server.ts",
     "update-db": "ts-node src/importData.ts",
     "lint": "eslint . --ext .ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
     "@types/validator": "^13.7.14",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
+    "concurrently": "^8.0.1",
     "eslint": "^8.36.0",
     "nodemon": "^2.0.21",
     "ts-node": "^10.9.1",
