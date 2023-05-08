@@ -4,19 +4,18 @@ import { SearchOptions, SearchEntry, Client } from 'ldapts'
 import { createSession } from './utils/createSession'
 import cors from 'cors'
 
-
 interface CustomSearchEntry extends SearchEntry {
-  dn: string;
+  dn: string
 }
 
 declare module 'express-session' {
   interface SessionData {
-    userData?: CustomSearchEntry;
+    userData?: CustomSearchEntry
   }
 }
 const options = {
   origin: `http://localhost:3000`,
-  credentials: true, 
+  credentials: true,
 }
 const app = express()
 app.use(cors(options))
@@ -24,7 +23,7 @@ const PORT = 5600
 
 const createNewClient = () => {
   const client = new Client({
-    url: 'ldap://localhost:389',
+    url: process.env.LDAP_URL || 'ldap://localhost:389',
   })
   return client
 }
