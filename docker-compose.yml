@@ -1,4 +1,4 @@
-version: '3'
+version: '3.9'
 
 services:
   colleague_feedback_backend:
@@ -15,11 +15,12 @@ services:
       LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
       LDAP_BIND_PASSWORD: secret
     command: [ "npm", "run", "start-server" ]
+    networks:
+      - ldap_network
+    restart: unless-stopped
 
   ldap_server:
-    build:
-      context: .
-      dockerfile: src/openLDAP/Dockerfile
+    image: osixia/openldap:latest
     container_name: ldap_server
     ports:
       - "389:389"
@@ -33,6 +34,9 @@ services:
     volumes:
       - ldap_data:/var/lib/ldap
       - ldap_config:/etc/ldap/slapd.d
+    networks:
+      - ldap_network
+    restart: unless-stopped
 
   ldap_server_backend:
     build: .
@@ -48,6 +52,9 @@ services:
     command: [ "npm", "run", "start-ldap" ]
     volumes:
       - ./employees.ldif:/app/employees.ldif
+    networks:
+      - ldap_network
+    restart: unless-stopped
 
   ldap_server_admin:
     image: osixia/phpldapadmin:0.9.0
@@ -57,9 +64,14 @@ services:
     environment:
       PHPLDAPADMIN_LDAP_HOSTS: ldap_server
       PHPLDAPADMIN_HTTPS: "false"
+    networks:
+      - ldap_network
+    restart: unless-stopped
 
 volumes:
   ldap_data:
   ldap_config:
 
-
+networks:
+  ldap_network:
+    driver: bridge
