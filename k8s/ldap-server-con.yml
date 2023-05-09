@@ -4,6 +4,6 @@ metadata:
   name: ldap://ldap_server_backend:5600
   namespace: colleague-feedback
 data:
-  LDAP_URL: ldap://ldap_server_backend:5600
-  LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
-  LDAP_BIND_PASSWORD: secret
+    LDAP_URL: ldap://ldap_server:389
+    LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
+    LDAP_BIND_PASSWORD: secret

@@ -7,14 +7,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ldap-Service
+      app: ldap-service
   template:
     metadata:
       labels:
-        app: ldap-Service
+        app: ldap-service
     spec:
       containers:
-      - name: ldap-Service
+      - name: ldap-service
         image: osixia/openldap:latest
         ports:
         - containerPort: 389
