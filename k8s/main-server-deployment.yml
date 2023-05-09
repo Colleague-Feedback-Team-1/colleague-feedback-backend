@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: colleague-feedback-backend
+  name: backend
   namespace: colleague-feedback
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: colleague-feedback-backend
+      app: backend
   template:
     metadata:
       labels:
-        app: colleague-feedback-backend
+        app: backend
     spec:
       containers:
       - name: backend
@@ -20,4 +20,5 @@ spec:
         - containerPort: 4500
         envFrom:
         - configMapRef:
-            name: colleague-feedback-backend-config
+            name: backend-config
+      restartPolicy: Always
