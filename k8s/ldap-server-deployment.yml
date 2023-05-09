@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ldap-server-backend
+  namespace: colleague-feedback
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ldap-server-backend
+  template:
+    metadata:
+      labels:
+        app: ldap-server-backend
+    spec:
+      containers:
+      - name: ldap-server-backend
+        image: ilyaponomarenko/colleague-feedback-backend:ldap-server-v1
+        ports:
+        - containerPort: 5600
+        envFrom:
+        - configMapRef:
+            name: ldap-server-backend-config
+      restartPolicy: Always
