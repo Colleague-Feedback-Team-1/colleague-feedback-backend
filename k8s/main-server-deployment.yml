@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: colleague-feedback-backend
+  namespace: colleague-feedback
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: colleague-feedback-backend
+  template:
+    metadata:
+      labels:
+        app: colleague-feedback-backend
+    spec:
+      containers:
+      - name: backend
+        image: ilyaponomarenko/colleague-feedback-backend:main-v1
+        ports:
+        - containerPort: 4500
+        envFrom:
+        - configMapRef:
+            name: colleague-feedback-backend-config
