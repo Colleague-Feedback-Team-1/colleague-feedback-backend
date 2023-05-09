@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ldap-service
+  namespace: colleague-feedback
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ldap-Service
+  template:
+    metadata:
+      labels:
+        app: ldap-Service
+    spec:
+      containers:
+      - name: ldap-Service
+        image: osixia/openldap:latest
+        ports:
+        - containerPort: 389
+        envFrom:
+        - configMapRef:
+            name: ldap-service-config
+        volumeMounts:
+        - name: ldap-data
+          mountPath: /var/lib/ldap
+        - name: ldap-config
+          mountPath: /etc/ldap/slapd.d
+      volumes:
+      - name: ldap-data
+        emptyDir: {}
+      - name: ldap-config
+        emptyDir: {}
+      restartPolicy: Always
