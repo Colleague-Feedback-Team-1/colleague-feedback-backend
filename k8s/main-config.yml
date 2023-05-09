@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: colleague-feedback
+data:
+  LDAP_URL: ldap://ldap_server_backend:5600
+  LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
+  LDAP_BIND_PASSWORD: secret
