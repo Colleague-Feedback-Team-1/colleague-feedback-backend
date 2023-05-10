@@ -10,7 +10,7 @@ import mongoose from 'mongoose'
 export const getAllNotifications: RequestHandler = async (req, res, next) => {
   try {
     const notifications = await NotificationModel.find()
-    res.status(200).json({ notifications })
+    res.status(200).json(notifications)
   } catch (error) {
     next(error)
   }
