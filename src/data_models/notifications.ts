@@ -11,23 +11,22 @@ export type NotificationType =
   | 'feedback-submitted'
 
 export type Sender = {
-  employeeid: string
-  employeeName: string
+  senderid: string
+  senderName: string
 }
 export type Receiver = {
-  employeeid: string
-  employeeName: string
+  receiverid: string | null
+  receiverName: string
 }
 export interface NotificationI {
   date: string
-  unread: boolean
   type: NotificationType
   sender: Sender[]
   receiver: Receiver[]
-  requestid: string
+  requestid: string | null
 }
 
-const notificationTypeEnum = [
+export const notificationTypeEnum = [
   'confirmed-by-admin',
   'denied-by-admin',
   'create-new-request',
@@ -39,24 +38,22 @@ const notificationTypeEnum = [
 ]
 
 const senderSchema = new Schema({
-  employeeid: { type: String, required: true },
-  employeeName: { type: String, required: true },
+  senderid: { type: String, required: true },
+  senderName: { type: String, required: true },
 })
 
 const receiverSchema = new Schema({
-  employeeid: { type: String, required: true },
-  employeeName: { type: String, required: true },
+  receiverid: { type: String, default: null },
+  receiverName: { type: String, required: true },
 })
 
 const notificationSchema = new Schema({
   date: { type: String, required: true },
-  unread: { type: Boolean, required: true },
   type: { type: String, required: true, enum: notificationTypeEnum },
   sender: { type: [senderSchema], required: true },
   receiver: { type: [receiverSchema], required: true },
-  requestid: { type: String, required: true },
+  requestid: { type: String, default: null },
 })
-
 
 type Notification = InferSchemaType<typeof notificationSchema>
 
