@@ -2,8 +2,6 @@ import { RequestHandler } from 'express'
 import createHttpError from 'http-errors'
 import NotificationModel, {
   NotificationI,
-  Sender,
-  Receiver,
   notificationTypeEnum,
 } from '../data_models/notifications'
 import validator from 'validator'
@@ -24,7 +22,7 @@ export const getNotificationsByReceiverId: RequestHandler = async (req, res, nex
     if (!mongoose.Types.ObjectId.isValid(receiverid)) {
       throw createHttpError(400, `Employee id: ${receiverid} is invalid `)
     }
-    const notifications = await NotificationModel.find({ 'receiver.employeeid': receiverid }).exec()
+    const notifications = await NotificationModel.find({ 'receiver.receiverid': receiverid }).exec()
     if (!notifications) {
       throw createHttpError(404, `Notifications for ${receiverid} not found`)
     }
