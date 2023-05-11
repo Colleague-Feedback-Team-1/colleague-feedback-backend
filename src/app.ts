@@ -12,7 +12,6 @@ import createHttpError, { isHttpError } from 'http-errors'
 
 const app = express()
 const options = {
-  origin: `http://localhost:3000`,
   credentials: true, 
 }
 app.use(createSession());
