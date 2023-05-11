@@ -15,10 +15,9 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ilyaponomarenko/colleague-feedback-backend:main-v1
+        image: ilyaponomarenko/colleague-feedback-backend:main-v3
         ports:
         - containerPort: 4500
         envFrom:
         - configMapRef:
             name: backend-config
-      restartPolicy: Always

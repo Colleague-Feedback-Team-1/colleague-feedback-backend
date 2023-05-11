@@ -15,10 +15,13 @@ spec:
     spec:
       containers:
       - name: ldap-server-backend
-        image: ilyaponomarenko/colleague-feedback-backend:ldap-server-v1
+        image: ilyaponomarenko/colleague-feedback-backend:ldap-server-v3
         ports:
         - containerPort: 5600
+        env:
+        - name: LDAP_URL
+          value: ldap://ldap-service.colleague-feedback.svc.cluster.local:389
         envFrom:
         - configMapRef:
-            name: ldap-server-backend-config
-      restartPolicy: Always
+            name: backend-config
+
