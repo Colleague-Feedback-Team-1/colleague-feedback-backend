@@ -1,4 +1,4 @@
-# backend_app/Dockerfile
+# backend_app/Dockerfile.ldap
 # Use the official Node.js image as the base image
 FROM node:14-alpine
 
@@ -22,3 +22,5 @@ RUN chown -R appuser:appuser /usr/src/app
 
 # Switch to the non-root user
 USER appuser
+
+CMD [ "npm", "run", "start-ldap" ]
