@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   main:
-    build: .
+    image: ilyaponomarenko/colleague-feedback-backend:main-v3
     container_name: backend
     ports:
       - "4500:4500"
@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
 
   ldap_server_backend:
-    build: .
+    image: ilyaponomarenko/colleague-feedback-backend:ldap-server-v3
     container_name: ldap_server_backend
     ports:
       - "5600:5600"
