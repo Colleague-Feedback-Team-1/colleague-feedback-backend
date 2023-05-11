@@ -5,6 +5,7 @@ import userRoutes from './routes/employees'
 import RequestRoutes from './routes/requests'
 import QuestionsRoutes from './routes/questions'
 import FeedbackDataRoutes from './routes/feedbackData'
+import notificationRoutes from './routes/notifications'
 import morgan from 'morgan'
 import cors from 'cors'
 import createHttpError, { isHttpError } from 'http-errors'
@@ -29,6 +30,8 @@ app.use('/api/review-requests', RequestRoutes)
 app.use('/api/questions', QuestionsRoutes)
 //feedbackData endpoint
 app.use('/api/feedback-data', FeedbackDataRoutes)
+//notifications endpoint
+app.use('/api/notifications', notificationRoutes)
 
 app.use((req, res, next) => {
   next(createHttpError(404, 'Endpoint not found'))
