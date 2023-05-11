@@ -1,9 +1,9 @@
 import 'dotenv/config'
 import mongoose from 'mongoose'
 import { Client, SearchOptions } from 'ldapts'
-import EmployeeModel from './data_models/employee'
-import app from './app'
-import env from './utils/validateEnv'
+import EmployeeModel from '../data_models/employee'
+import app from '../app'
+import env from '../utils/validateEnv'
 
 const port = env.PORT
 const schema = EmployeeModel.schema

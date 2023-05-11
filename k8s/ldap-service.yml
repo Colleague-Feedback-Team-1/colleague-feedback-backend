@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ldap-service
+  namespace: colleague-feedback
+spec:
+  selector:
+    app: ldap-server-backend
+  ports:
+    - protocol: TCP
+      port: 5600
+      targetPort: 5600
+      nodePort: 30081
+  type: NodePort

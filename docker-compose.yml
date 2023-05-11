@@ -1,0 +1,77 @@
+version: '3.9'
+
+services:
+  main:
+    image: ilyaponomarenko/colleague-feedback-backend:main-v3
+    container_name: backend
+    ports:
+      - "4500:4500"
+    depends_on:
+      - ldap_server_backend
+    env_file:
+      - .env
+    environment:
+      LDAP_URL: ldap://ldap_server_backend:5600
+      LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
+      LDAP_BIND_PASSWORD: secret
+    command: [ "npm", "run", "start-server" ]
+    networks:
+      - ldap_network
+    restart: unless-stopped
+
+  ldap_server:
+    image: osixia/openldap:latest
+    container_name: ldap_server
+    ports:
+      - "389:389"
+    environment:
+      LDAP_ORGANISATION: Colleague-feedback
+      LDAP_DOMAIN: employeesdb.com
+      LDAP_BASE_DN: dc=employeesdb,dc=com
+      LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
+      LDAP_ADMIN_PASSWORD: secret
+      LDAP_LOG_LEVEL: 256
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+    networks:
+      - ldap_network
+    restart: unless-stopped
+
+  ldap_server_backend:
+    image: ilyaponomarenko/colleague-feedback-backend:ldap-server-v3
+    container_name: ldap_server_backend
+    ports:
+      - "5600:5600"
+    depends_on:
+      - ldap_server
+    environment:
+      LDAP_URL: ldap://ldap_server:389
+      LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
+      LDAP_BIND_PASSWORD: secret
+    command: [ "npm", "run", "start-ldap" ]
+    volumes:
+      - ./employees.ldif:/app/employees.ldif
+    networks:
+      - ldap_network
+    restart: unless-stopped
+
+  ldap_server_admin:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: ldap_server_admin
+    ports:
+      - "8080:80"
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: ldap_server
+      PHPLDAPADMIN_HTTPS: "false"
+    networks:
+      - ldap_network
+    restart: unless-stopped
+
+volumes:
+  ldap_data:
+  ldap_config:
+
+networks:
+  ldap_network:
+    driver: bridge
