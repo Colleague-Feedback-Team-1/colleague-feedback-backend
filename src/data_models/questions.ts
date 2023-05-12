@@ -13,11 +13,11 @@ const QuestionSchema = new Schema<QuestionI>({
   isFreeForm: { type: Boolean, required: true },
 })
 
-const Section= new Schema<SectionI>({
+const Section = new Schema<SectionI>({
   sectionName: { type: String, required: true },
   questions: { type: [QuestionSchema] },
 })
 
 type Question = InferSchemaType<typeof Section>
 
-export default model<Question>("Question", Section)
+export default model<Question>('Question', Section)

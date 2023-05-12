@@ -14,7 +14,7 @@ export const getAll: RequestHandler = async (req, res, next) => {
     next(error)
   }
 }
-
+// Get all unconfirmed requests
 export const getUnconfirmedRequests: RequestHandler = async (req, res, next) => {
   try {
     const unconfirmedRequests = await RequestsModel.find({ confirmedByHR: false }).exec()
@@ -23,7 +23,7 @@ export const getUnconfirmedRequests: RequestHandler = async (req, res, next) => 
     next(error)
   }
 }
-
+// Get request by employeeid
 export const getRequestsByEmployeeId: RequestHandler = async (req, res, next) => {
   const employeeid = validator.escape(req.params.employeeid)
   try {
@@ -62,6 +62,7 @@ export const getRequestByRequestId: RequestHandler<
   }
 }
 
+// Get requests by reviewerid
 export const getRequestsByReviewerId: RequestHandler<
   { reviewerid: string },
   unknown,

@@ -1,4 +1,4 @@
-import mongoose,{ InferSchemaType, Schema, model } from 'mongoose'
+import mongoose, { InferSchemaType, Schema, model } from 'mongoose'
 
 const employeeSchema = new Schema({
   _id: mongoose.Schema.Types.ObjectId,

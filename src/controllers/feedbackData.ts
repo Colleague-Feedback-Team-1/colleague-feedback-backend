@@ -5,6 +5,7 @@ import { validateFeedbackData } from '../utils/validators'
 import { AnswerScoreI, AnswerBySectionI, FeedbackDataI } from '../data_models/feedbackData'
 import validator from 'validator'
 
+// Get all feedback data
 export const getAll: RequestHandler = async (req, res, next) => {
   try {
     const toBeReviewedAll = await feedbackDataModel.find().lean().exec()
@@ -13,7 +14,7 @@ export const getAll: RequestHandler = async (req, res, next) => {
     next(error)
   }
 }
-
+// Get feedback data by request id
 export const getFeedbackDataByRequestId: RequestHandler<{ requestid: string }> = async (
   req,
   res,

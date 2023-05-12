@@ -3,7 +3,7 @@ import session from 'express-session'
 import 'dotenv/config'
 import env from './validateEnv'
 
-
+// Create a session middleware 
 export function createSession() {
     return session({
       secret: env.SESSION_SECRET,
