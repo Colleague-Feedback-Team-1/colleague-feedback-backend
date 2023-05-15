@@ -14,7 +14,7 @@ services:
       LDAP_URL: ldap://ldap_server_backend:5600
       LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
       LDAP_BIND_PASSWORD: secret
-    command: [ "npm", "start-server" ]
+    command: [ "npm", "run", "start-server" ]
     networks:
       - ldap_network
     restart: unless-stopped
@@ -41,6 +41,8 @@ services:
   ldap_server_backend:
     image: ilyaponomarenko/colleague-feedback-backend:ldap-server-latest
     container_name: ldap_server_backend
+    env_file:
+      - .env
     ports:
       - "5600:5600"
     depends_on:
@@ -49,7 +51,7 @@ services:
       LDAP_URL: ldap://ldap_server:389
       LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
       LDAP_BIND_PASSWORD: secret
-    command: [ "npm", "start-ldap" ]
+    command: [ "npm", "run", "start-ldap" ]
     volumes:
       - ./employees.ldif:/app/employees.ldif
     networks:
@@ -71,7 +73,6 @@ services:
 volumes:
   ldap_data:
   ldap_config:
-
 
 networks:
   ldap_network:
