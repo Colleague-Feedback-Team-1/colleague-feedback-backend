@@ -1,0 +1,45 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build-main:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        username: ilyaponomarenko
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push the Docker image (main)
+      run: |
+        docker build . --file Dockerfile.main --tag ilyaponomarenko/colleague-feedback-backend:main-latest
+        docker push ilyaponomarenko/colleague-feedback-backend:main
+
+  build-ldap:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        username: ilyaponomarenko
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push the Docker image (ldap)
+      run: |
+        docker build . --file Dockerfile.ldap --tag ilyaponomarenko/colleague-feedback-backend:ldap-server-latest
+        docker push ilyaponomarenko/colleague-feedback-backend:ldap-server-latest
