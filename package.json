@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "start-server": "nodemon src/server.ts",
+    "start-server-nodemon": "nodemon src/server.ts",
+    "start-server": "ts-node src/server.ts",
     "start-ldap": "ts-node src/ldap-server.ts",
     "update-db": "ts-node src/importData.ts",
     "lint": "eslint . --ext .ts",
