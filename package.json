@@ -5,8 +5,8 @@
   "main": "dist/server.js",
   "scripts": {
     "start-server-nodemon": "nodemon src/server.ts",
-    "start-server": "ts-node src/server.ts",
-    "start-ldap": "ts-node src/ldap-server.ts",
+    "start-server": "node dist/server.js",
+    "start-ldap": "node dist/ldap-server.js",
     "update-db": "ts-node src/importData.ts",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",

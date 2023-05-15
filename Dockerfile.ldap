@@ -23,4 +23,8 @@ RUN chown -R appuser:appuser /usr/src/app
 # Switch to the non-root user
 USER appuser
 
-CMD [ "npm", "run", "start-ldap" ]
+# Build the application
+RUN npm run build
+
+CMD [ "npm", "start-ldap" ]
+

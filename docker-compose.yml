@@ -14,7 +14,7 @@ services:
       LDAP_URL: ldap://ldap_server_backend:5600
       LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
       LDAP_BIND_PASSWORD: secret
-    command: [ "npm", "run", "start-server" ]
+    command: [ "npm", "start-server" ]
     networks:
       - ldap_network
     restart: unless-stopped
@@ -49,7 +49,7 @@ services:
       LDAP_URL: ldap://ldap_server:389
       LDAP_BIND_DN: cn=admin,dc=employeesdb,dc=com
       LDAP_BIND_PASSWORD: secret
-    command: [ "npm", "run", "start-ldap" ]
+    command: [ "npm", "start-ldap" ]
     volumes:
       - ./employees.ldif:/app/employees.ldif
     networks:
@@ -71,6 +71,7 @@ services:
 volumes:
   ldap_data:
   ldap_config:
+
 
 networks:
   ldap_network:
