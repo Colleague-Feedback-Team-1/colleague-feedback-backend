@@ -42,7 +42,7 @@
     "express-session": "^1.17.3",
     "http-errors": "^2.0.0",
     "ldapts": "^6.0.0",
-    "mongoose": "^7.0.2",
+    "mongoose": "^8.0.0",
     "morgan": "^1.10.0",
     "validator": "^13.9.0"
   }
